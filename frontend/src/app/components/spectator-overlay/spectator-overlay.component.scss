@@ -1,0 +1,87 @@
+@use 'sass:color';
+
+$primary: #7c4dff;
+$primary-dark: #651fff;
+$spectator-badge: #ff9100;
+$text-dark: #2d2d3a;
+$text-muted: #6b6b80;
+$radius-lg: 20px;
+$radius-md: 14px;
+
+.spectator-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(45, 45, 58, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlay-fade-in 0.3s ease-out;
+  padding: 1rem;
+}
+
+.spectator-overlay__card {
+  background: #fff;
+  border-radius: $radius-lg;
+  box-shadow: 0 8px 32px rgba(255, 145, 0, 0.2);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+  border-top: 5px solid $spectator-badge;
+}
+
+.spectator-overlay__icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.spectator-overlay__title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: $spectator-badge;
+  margin: 0 0 0.6rem;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+.spectator-overlay__text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-muted;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+.spectator-overlay__btn {
+  background: $primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-md;
+  padding: 0.75rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+
+  &:hover {
+    background: $primary-dark;
+    transform: scale(1.04);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

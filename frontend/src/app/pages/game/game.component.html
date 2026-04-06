@@ -1,0 +1,70 @@
+<div class="game-page">
+  @if (showSpectatorOverlay()) {
+    <app-spectator-overlay (dismissed)="dismissSpectatorOverlay()" />
+  }
+
+  @if (!joined()) {
+    <!-- Join overlay -->
+    <div class="join-overlay">
+      <div class="join-card">
+        <h1 class="join-card__title">{{ 'join.title' | translate }}</h1>
+        <p class="join-card__subtitle" [innerHTML]="'join.subtitle' | translate:{ code: lobbyCode() }"></p>
+
+        @if (errorMessage()) {
+          <div class="join-card__error">{{ errorMessage() }}</div>
+        }
+
+        <form class="join-card__form" (ngSubmit)="joinLobby()">
+          <input
+            class="join-card__input"
+            type="text"
+            [placeholder]="'join.placeholder' | translate"
+            [ngModel]="usernameInput()"
+            (ngModelChange)="usernameInput.set($event)"
+            name="username"
+            maxlength="20"
+            autocomplete="off"
+            [disabled]="joining()"
+            [attr.aria-label]="'join.placeholder' | translate"
+          />
+          <app-button
+            type="submit"
+            [fullWidth]="true"
+            [disabled]="!usernameInput().trim()"
+            [loading]="joining()"
+          >
+            @if (joining()) {
+              {{ 'join.joining' | translate }}
+            } @else {
+              {{ 'join.joinBtn' | translate }}
+            }
+          </app-button>
+        </form>
+      </div>
+    </div>
+  } @else {
+    @switch (gameState.phase()) {
+      @case ('waiting') {
+        <app-lobby />
+      }
+      @case ('playing') {
+        <app-gameplay />
+      }
+      @case ('round_results') {
+        <app-round-results />
+      }
+      @case ('results') {
+        <app-end-game />
+      }
+      @case ('rematch_countdown') {
+        <app-end-game />
+      }
+      @default {
+        <div class="phase-placeholder">
+          <div class="spinner"></div>
+          <p>{{ 'loading' | translate }}</p>
+        </div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,199 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.gameplay {
+  padding: 1.5rem 1rem 4rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+
+.gameplay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.gameplay__round-info {
+  background: $card-bg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: 0.6rem 1.2rem;
+}
+
+.gameplay__round-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: $primary;
+}
+
+.gameplay__timer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $card-bg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: 0.6rem 1.2rem;
+  transition: background 0.3s, color 0.3s;
+
+  &--urgent {
+    background: $danger;
+    animation: pulse-urgent 0.6s ease-in-out infinite alternate;
+
+    .gameplay__timer-value {
+      color: #fff;
+    }
+  }
+}
+
+.gameplay__timer-icon {
+  font-size: 1.1rem;
+}
+
+.gameplay__timer-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: $text-dark;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-urgent {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+// ─── Instruction ─────────────────────────────────────────────────────────────
+
+.gameplay__instruction {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-muted;
+  margin: 0 0 1rem;
+}
+
+// ─── Item Cards ──────────────────────────────────────────────────────────────
+
+.gameplay__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+
+  &--readonly {
+    opacity: 0.85;
+  }
+}
+
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: $card-bg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: 0.6rem 0.8rem;
+  cursor: grab;
+  transition: box-shadow 0.2s, transform 0.2s;
+  user-select: none;
+
+  &:active { cursor: grabbing; }
+  &--readonly { cursor: default; &:active { cursor: default; } }
+  &--disabled { cursor: default; opacity: 0.7; &:active { cursor: default; } }
+}
+
+.item-card__rank {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.item-card__image-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 80px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.item-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.item-card__name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0.8rem 0.6rem 0.4rem;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+// ─── Drag & Drop ─────────────────────────────────────────────────────────────
+
+.cdk-drag-placeholder {
+  background: color.adjust($primary-light, $lightness: 18%);
+  border: 3px dashed $primary-light;
+  border-radius: $radius-md;
+  opacity: 0.6;
+  min-height: 92px;
+}
+
+.cdk-drag-animating {
+  transition: transform 10ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.gameplay__items.cdk-drop-list-dragging .item-card:not(.cdk-drag-placeholder) {
+  transition: transform 10ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.item-card__drag-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: $card-bg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-elevated;
+  padding: 0.6rem 0.8rem;
+  transform: scale(1.04);
+  opacity: 0.95;
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+
+@media (max-width: 500px) {
+  .gameplay {
+    padding: 1rem 0.6rem 3rem;
+  }
+
+  .gameplay__header {
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .item-card__image-wrapper {
+    height: 64px;
+  }
+}

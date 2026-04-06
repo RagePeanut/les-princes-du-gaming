@@ -1,32 +1,12 @@
 {
-  "name": "multiplayer-game-hub-backend",
+  "name": "rank-fight",
   "version": "1.0.0",
-  "description": "Multiplayer Game Hub - Backend Server",
-  "main": "dist/backend/src/server.js",
+  "private": true,
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/backend/src/server.js",
-    "dev": "ts-node src/server.ts",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "dependencies": {
-    "express": "^4.21.0",
-    "uuid": "^10.0.0",
-    "ws": "^8.18.0"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.0",
-    "@types/supertest": "^7.2.0",
-    "@types/uuid": "^10.0.0",
-    "@types/ws": "^8.5.12",
-    "fast-check": "^3.22.0",
-    "jest": "^29.7.0",
-    "supertest": "^7.2.2",
-    "ts-jest": "^29.2.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.0"
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start": "npm run start --prefix backend"
   }
 }

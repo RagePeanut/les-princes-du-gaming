@@ -1,0 +1,29 @@
+@use 'sass:color';
+
+// ─── Color Palette ───────────────────────────────────────────────────────────
+$primary: #7c4dff;
+$primary-light: #b388ff;
+$primary-dark: #651fff;
+$accent: #ff6d00;
+$accent-light: #ffab40;
+$bg: #f5f0ff;
+$card-bg: #ffffff;
+$text-dark: #2d2d3a;
+$text-muted: #6b6b80;
+$success: #00c853;
+$warning: #ffd600;
+$danger: #ff1744;
+$host-badge: #7c4dff;
+$spectator-badge: #ff9100;
+
+// ─── Border Radii ────────────────────────────────────────────────────────────
+$radius-lg: 20px;
+$radius-md: 14px;
+$radius-sm: 10px;
+
+// ─── Shadows ─────────────────────────────────────────────────────────────────
+$shadow-card: 0 4px 16px rgba(124, 77, 255, 0.12);
+$shadow-elevated: 0 8px 32px rgba(124, 77, 255, 0.18);
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+$font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;

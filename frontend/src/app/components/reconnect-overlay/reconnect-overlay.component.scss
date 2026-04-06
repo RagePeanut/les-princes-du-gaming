@@ -1,0 +1,68 @@
+$primary: #7c4dff;
+$primary-light: #b388ff;
+$text-dark: #2d2d3a;
+$text-muted: #6b6b80;
+$radius-lg: 20px;
+
+.reconnect-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(45, 45, 58, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlay-fade-in 0.3s ease-out;
+}
+
+.reconnect-overlay__card {
+  background: #fff;
+  border-radius: $radius-lg;
+  box-shadow: 0 8px 32px rgba(124, 77, 255, 0.2);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+}
+
+.reconnect-overlay__spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid $primary-light;
+  border-top-color: $primary;
+  border-radius: 50%;
+  margin: 0 auto 1.2rem;
+  animation: spin 0.8s linear infinite;
+}
+
+.reconnect-overlay__text {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: $primary;
+  margin: 0 0 0.4rem;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+.reconnect-overlay__hint {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-muted;
+  margin: 0;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

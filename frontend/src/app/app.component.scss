@@ -1,0 +1,27 @@
+.lang-switcher {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 1000;
+
+  select {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(30, 30, 50, 0.85);
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+
+    &:focus {
+      outline: 2px solid #7c5cfc;
+      outline-offset: 2px;
+    }
+
+    option {
+      background: #1e1e32;
+      color: #fff;
+    }
+  }
+}

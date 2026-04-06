@@ -1,0 +1,119 @@
+@use 'sass:color';
+
+$primary: #7c4dff;
+$success: #00c853;
+$danger: #ff1744;
+$info: #2979ff;
+$card-bg: #ffffff;
+$text-dark: #2d2d3a;
+$radius-md: 14px;
+
+.toast-container {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 400px;
+  width: calc(100% - 2.4rem);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: $card-bg;
+  border-radius: $radius-md;
+  padding: 0.8rem 1rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  animation: toast-in 0.3s ease-out;
+  pointer-events: auto;
+  border-left: 5px solid $info;
+
+  &--error {
+    border-left-color: $danger;
+  }
+
+  &--success {
+    border-left-color: $success;
+  }
+
+  &--info {
+    border-left-color: $info;
+  }
+}
+
+.toast__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.toast__message {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $text-dark;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+.toast__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.toast__retry-btn {
+  background: $primary;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+
+  &:hover {
+    background: color.adjust($primary, $lightness: -8%);
+    transform: scale(1.05);
+  }
+}
+
+.toast__close-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0.2rem;
+  line-height: 1;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $text-dark;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 500px) {
+  .toast-container {
+    top: 0.8rem;
+    right: 0.8rem;
+    max-width: calc(100% - 1.6rem);
+  }
+}

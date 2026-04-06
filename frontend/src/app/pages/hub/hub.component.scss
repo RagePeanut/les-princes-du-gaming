@@ -1,0 +1,224 @@
+@use 'sass:color';
+
+// Gartic Phone-inspired playful styling
+$primary: #7c4dff;
+$primary-light: #b388ff;
+$accent: #ff6d00;
+$accent-light: #ffab40;
+$bg: #f5f0ff;
+$card-bg: #ffffff;
+$text-dark: #2d2d3a;
+$text-muted: #6b6b80;
+$external-badge: #ff4081;
+$radius-lg: 20px;
+$radius-md: 14px;
+$shadow-card: 0 4px 16px rgba(124, 77, 255, 0.12);
+$shadow-hover: 0 8px 32px rgba(124, 77, 255, 0.22);
+
+.hub {
+  min-height: 100vh;
+  background: $bg;
+  padding: 2rem 1.5rem 4rem;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+.hub__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.hub__title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: $primary;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.5px;
+}
+
+.hub__subtitle {
+  font-size: 1.15rem;
+  color: $text-muted;
+  font-weight: 600;
+  margin: 0;
+}
+
+// Loading state
+.hub__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 0;
+  color: $text-muted;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.hub__spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid $primary-light;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Error state
+.hub__error {
+  text-align: center;
+  padding: 3rem 0;
+  color: $accent;
+  font-weight: 700;
+  font-size: 1.1rem;
+
+  p {
+    margin: 0 0 1rem;
+  }
+}
+
+.hub__retry-btn {
+  background: $accent;
+  color: #fff;
+  border: none;
+  border-radius: $radius-md;
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+
+  &:hover {
+    background: color.adjust($accent, $lightness: -8%);
+    transform: scale(1.04);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// Card grid
+.hub__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+// Game card
+.game-card {
+  display: flex;
+  flex-direction: column;
+  background: $card-bg;
+  border: 3px solid transparent;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s,
+              border-color 0.22s;
+  padding: 0;
+  text-align: left;
+  text-decoration: none;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: $shadow-hover;
+    border-color: $primary-light;
+  }
+
+  &:focus-visible {
+    border-color: $primary;
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(0.99);
+  }
+}
+
+.game-card--external {
+  &:hover,
+  &:focus-visible {
+    border-color: $external-badge;
+  }
+}
+
+.game-card__image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, $primary-light 0%, $accent-light 100%);
+  overflow: hidden;
+}
+
+.game-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.game-card__external-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: $external-badge;
+  color: #fff;
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 64, 129, 0.35);
+}
+
+.game-card__external-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.game-card__body {
+  padding: 1rem 1.2rem 1.3rem;
+}
+
+.game-card__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: $text-dark;
+  margin: 0 0 0.3rem;
+}
+
+.game-card__description {
+  font-size: 0.92rem;
+  color: $text-muted;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .hub {
+    padding: 1.2rem 0.8rem 3rem;
+  }
+
+  .hub__title {
+    font-size: 2rem;
+  }
+
+  .hub__grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}

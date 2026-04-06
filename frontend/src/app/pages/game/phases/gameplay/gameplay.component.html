@@ -1,0 +1,80 @@
+<div class="gameplay">
+  <!-- Round indicator -->
+  <header class="gameplay__header">
+    <div class="gameplay__round-info">
+      <span class="gameplay__round-label">
+        {{ 'gameplay.round' | translate:{ current: gameState.currentRound(), total: gameState.totalRounds() } }}
+      </span>
+    </div>
+
+    <div class="gameplay__timer" [class.gameplay__timer--urgent]="gameState.timerSeconds() <= 5">
+      <span class="gameplay__timer-icon">⏱️</span>
+      <span class="gameplay__timer-value">{{ gameState.timerSeconds() }}s</span>
+    </div>
+  </header>
+
+  @if (gameState.isSpectator()) {
+    <app-banner variant="warning" icon="👁️" [text]="'gameplay.spectating' | translate" />
+
+    <div class="gameplay__items gameplay__items--readonly">
+      @for (item of rankedItems(); track item.id) {
+        <div class="item-card item-card--readonly">
+          <div class="item-card__rank">{{ $index + 1 }}</div>
+          <div class="item-card__image-wrapper">
+            <img class="item-card__image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+            <span class="item-card__name">{{ 'items.' + item.id | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    @if (submitted()) {
+      <app-banner variant="success" [icon]="'gameplay.submittedBanner' | translate" [text]="'gameplay.submittedText' | translate" />
+    }
+
+    <p class="gameplay__instruction">
+      @if (submitted()) {
+        {{ 'gameplay.waitingForOthers' | translate }}
+      } @else {
+        {{ 'gameplay.instruction' | translate }}
+      }
+    </p>
+
+    <div
+      class="gameplay__items"
+      cdkDropList
+      [cdkDropListData]="rankedItems()"
+      [cdkDropListDisabled]="submitted()"
+      (cdkDropListDropped)="onDrop($event)"
+    >
+      @for (item of rankedItems(); track item.id) {
+        <div
+          class="item-card"
+          [class.item-card--disabled]="submitted()"
+          cdkDrag
+          [cdkDragDisabled]="submitted()"
+        >
+          <div class="item-card__rank">{{ $index + 1 }}</div>
+          <div class="item-card__image-wrapper">
+            <img class="item-card__image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+            <span class="item-card__name">{{ 'items.' + item.id | translate }}</span>
+          </div>
+          <div class="item-card__drag-handle" *cdkDragPlaceholder></div>
+          <div class="item-card__drag-preview" *cdkDragPreview>
+            <div class="item-card__rank">{{ $index + 1 }}</div>
+            <div class="item-card__image-wrapper">
+              <img class="item-card__image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+              <span class="item-card__name">{{ 'items.' + item.id | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!submitted()) {
+      <app-button variant="success" [fullWidth]="true" (clicked)="submitRanking()">
+        {{ 'gameplay.submitBtn' | translate }}
+      </app-button>
+    }
+  }
+</div>

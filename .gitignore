@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Angular cache
+.angular/
+
 # Coverage
 coverage/
 
@@ -17,6 +20,7 @@ Thumbs.db
 
 # IDE
 .idea/
+.vscode/
 *.swp
 *.swo
 
@@ -26,3 +30,9 @@ npm-debug.log*
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Shared compiled output
+shared/*.js
+shared/*.js.map
+shared/*.d.ts
+shared/*.d.ts.map

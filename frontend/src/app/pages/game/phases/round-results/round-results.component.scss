@@ -1,0 +1,248 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.results {
+  padding: 2rem 1.5rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.results__header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.results__title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: $primary;
+  margin: 0;
+}
+
+.results__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.results__score-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ─── Average Ranking ─────────────────────────────────────────────────────────
+
+.results__avg-ranking {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.results__avg-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: $bg;
+  border-radius: $radius-sm;
+  padding: 0.5rem 0.7rem;
+}
+
+.results__avg-rank {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.results__avg-image-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.results__avg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.results__avg-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.6rem 0.5rem 0.3rem;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+// ─── Animations ──────────────────────────────────────────────────────────────
+
+.results__animated {
+  animation: score-reveal 0.4s ease-out both;
+}
+
+@keyframes score-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ─── Per-Player Scores ───────────────────────────────────────────────────────
+
+.results__scores {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.results__score-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $bg;
+  border-radius: $radius-sm;
+  padding: 0.5rem 0.8rem;
+}
+
+.results__score-player {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.results__score-username {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-dark;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results__score-value {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: $success;
+  flex-shrink: 0;
+}
+
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+
+.results__leaderboard {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.results__lb-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: $bg;
+  border-radius: $radius-sm;
+  padding: 0.6rem 0.8rem;
+}
+
+.results__lb-rank {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.results__lb-player {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.results__lb-username {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-dark;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results__lb-score {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: $primary;
+  flex-shrink: 0;
+}
+
+// ─── Waiting Message ─────────────────────────────────────────────────────────
+
+.results__waiting-msg {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-muted;
+  margin: 0;
+  padding: 0.8rem;
+  background: color.adjust($primary-light, $lightness: 18%);
+  border-radius: $radius-sm;
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+
+@media (max-width: 700px) {
+  .results__body {
+    grid-template-columns: 1fr;
+  }
+
+  .results {
+    padding: 1rem 0.6rem 3rem;
+  }
+
+  .results__title {
+    font-size: 1.6rem;
+  }
+
+  .results__avg-image-wrapper {
+    height: 44px;
+  }
+}

@@ -1,0 +1,84 @@
+<div class="results">
+  <header class="results__header">
+    <h1 class="results__title">{{ 'results.title' | translate:{ round: gameState.currentRound() } }}</h1>
+  </header>
+
+  <div class="results__body">
+    <!-- Average Ranking -->
+    <app-card [title]="'results.avgRanking' | translate">
+      <ol class="results__avg-ranking">
+        @for (itemId of gameState.averageRanking(); track itemId; let i = $index) {
+          @for (item of gameState.items(); track item.id) {
+            @if (item.id === itemId) {
+              <li class="results__avg-item results__animated" [style.animation-delay]="(i * 0.12) + 's'">
+                <span class="results__avg-rank">{{ i + 1 }}</span>
+                <div class="results__avg-image-wrapper">
+                  <img class="results__avg-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+                  <span class="results__avg-name">{{ 'items.' + item.id | translate }}</span>
+                </div>
+              </li>
+            }
+          }
+        }
+      </ol>
+    </app-card>
+
+    <div class="results__score-cards">
+      <!-- Per-Player Scores -->
+      <app-card [title]="'results.roundScores' | translate">
+        <ul class="results__scores">
+          @for (ps of gameState.roundScores(); track ps.playerId; let i = $index) {
+            <li class="results__score-item results__animated" [style.animation-delay]="(i * 0.1) + 's'">
+              <div class="results__score-player">
+                <app-player-avatar
+                  size="sm"
+                  [src]="getAvatar(ps.playerId)"
+                  [alt]="ps.username + ' avatar'"
+                />
+                <span class="results__score-username">{{ ps.username }}</span>
+              </div>
+              <span class="results__score-value">+{{ ps.score }}</span>
+            </li>
+          }
+        </ul>
+      </app-card>
+
+      <!-- Cumulative Leaderboard -->
+      <app-card [title]="'results.leaderboard' | translate">
+        <ol class="results__leaderboard">
+          @for (entry of gameState.leaderboard(); track entry.playerId; let i = $index) {
+            <li class="results__lb-item results__animated" [style.animation-delay]="(i * 0.1) + 's'">
+              <span class="results__lb-rank">{{ entry.rank }}</span>
+              <div class="results__lb-player">
+                <app-player-avatar
+                  size="sm"
+                  [src]="getAvatar(entry.playerId)"
+                  [alt]="entry.username + ' avatar'"
+                />
+                <span class="results__lb-username">{{ entry.username }}</span>
+              </div>
+              <span class="results__lb-score">{{ entry.totalScore }}</span>
+            </li>
+          }
+        </ol>
+      </app-card>
+    </div>
+  </div>
+
+  <!-- Host Next Round Button -->
+  @if (gameState.isHost()) {
+    <app-button variant="success" [fullWidth]="true" (clicked)="nextRound()">
+      @if (gameState.betweenRoundsCountdown() > 0) {
+        {{ 'results.nextRoundCountdown' | translate:{ seconds: gameState.betweenRoundsCountdown() } }}
+      } @else {
+        {{ 'results.nextRound' | translate }}
+      }
+    </app-button>
+  } @else {
+    @if (gameState.betweenRoundsCountdown() > 0) {
+      <p class="results__waiting-msg">{{ 'results.autoAdvanceIn' | translate:{ seconds: gameState.betweenRoundsCountdown() } }}</p>
+    } @else {
+      <p class="results__waiting-msg">{{ 'results.waitingForNext' | translate }}</p>
+    }
+  }
+</div>

@@ -1,0 +1,15 @@
+<div class="lang-switcher">
+  <select
+    [value]="currentLang"
+    (change)="switchLang($any($event.target).value)"
+    aria-label="Language"
+  >
+    @for (lang of languages; track lang) {
+      <option [value]="lang">{{ lang | uppercase }}</option>
+    }
+  </select>
+</div>
+
+<router-outlet />
+<app-toast />
+<app-reconnect-overlay />

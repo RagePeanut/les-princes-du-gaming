@@ -1,0 +1,46 @@
+<div class="end-game">
+  <header class="end-game__header">
+    <h1 class="end-game__title">{{ 'endGame.title' | translate }}</h1>
+  </header>
+
+  <app-card [title]="'endGame.finalLeaderboard' | translate">
+    <ol class="end-game__leaderboard">
+      @for (entry of sortedLeaderboard(); track entry.playerId; let i = $index) {
+        <li
+          class="end-game__lb-item"
+          [class.end-game__lb-item--winner]="isWinner(entry)"
+          [style.animation-delay]="(i * 0.12) + 's'"
+        >
+          <span class="end-game__lb-rank">
+            @if (isWinner(entry)) {
+              <span class="end-game__crown" aria-label="Winner">👑</span>
+            } @else {
+              {{ entry.rank }}
+            }
+          </span>
+          <div class="end-game__lb-player">
+            <app-player-avatar
+              size="sm"
+              [src]="getAvatar(entry.playerId)"
+              [alt]="entry.username + ' avatar'"
+              [fallback]="entry.username.charAt(0).toUpperCase()"
+            />
+            <span class="end-game__lb-username">{{ entry.username }}</span>
+          </div>
+          <span class="end-game__lb-score">{{ entry.totalScore }}</span>
+        </li>
+      }
+    </ol>
+    @if (gameState.isTie()) {
+      <p class="end-game__tie-msg">{{ 'endGame.tieMsg' | translate }}</p>
+    }
+  </app-card>
+
+  @if (showCountdown()) {
+    <div class="end-game__rematch" aria-label="Rematch countdown">
+      <span class="end-game__rematch-icon">🔄</span>
+      <span class="end-game__rematch-text">{{ 'endGame.rematchIn' | translate }}</span>
+      <span class="end-game__rematch-timer">{{ gameState.rematchCountdown() }}s</span>
+    </div>
+  }
+</div>

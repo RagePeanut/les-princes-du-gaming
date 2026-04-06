@@ -1,0 +1,71 @@
+<div class="hub">
+  <header class="hub__header">
+    <h1 class="hub__title">{{ 'hub.title' | translate }}</h1>
+    <p class="hub__subtitle">{{ 'hub.subtitle' | translate }}</p>
+  </header>
+
+  @if (loading()) {
+    <div class="hub__loading">
+      <div class="hub__spinner"></div>
+      <p>{{ 'hub.loading' | translate }}</p>
+    </div>
+  } @else if (error()) {
+    <div class="hub__error">
+      <p>{{ error() }}</p>
+      <button class="hub__retry-btn" (click)="ngOnInit()">{{ 'hub.retry' | translate }}</button>
+    </div>
+  } @else {
+    <div class="hub__grid">
+      @for (game of games(); track game.id) {
+        @if (game.isExternal && game.externalUrl) {
+          <a
+            class="game-card game-card--external"
+            [href]="game.externalUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="'hub.openGame' | translate:{ title: game.title }"
+          >
+            <div class="game-card__image-wrapper">
+              <img
+                class="game-card__image"
+                [src]="game.imageUrl"
+                [alt]="game.title"
+                loading="lazy"
+              />
+              <span class="game-card__external-badge" aria-label="External link">
+                <svg class="game-card__external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </span>
+            </div>
+            <div class="game-card__body">
+              <h2 class="game-card__title">{{ game.title }}</h2>
+              <p class="game-card__description">{{ game.description }}</p>
+            </div>
+          </a>
+        } @else {
+          <button
+            class="game-card"
+            (click)="onInternalCardClick(game)"
+            [attr.aria-label]="'hub.playGame' | translate:{ title: game.title }"
+          >
+            <div class="game-card__image-wrapper">
+              <img
+                class="game-card__image"
+                [src]="game.imageUrl"
+                [alt]="game.title"
+                loading="lazy"
+              />
+            </div>
+            <div class="game-card__body">
+              <h2 class="game-card__title">{{ game.title }}</h2>
+              <p class="game-card__description">{{ game.description }}</p>
+            </div>
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

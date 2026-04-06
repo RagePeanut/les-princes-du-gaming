@@ -1,0 +1,119 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.game-page {
+  min-height: 100vh;
+  background: $bg;
+  font-family: $font-family;
+}
+
+// ─── Join Overlay ────────────────────────────────────────────────────────────
+
+.join-overlay {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.join-card {
+  background: $card-bg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-elevated;
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.join-card__title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: $primary;
+  margin: 0 0 0.5rem;
+}
+
+.join-card__subtitle {
+  font-size: 1rem;
+  color: $text-muted;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+
+  strong {
+    color: $primary;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+  }
+}
+
+.join-card__error {
+  background: color.adjust($danger, $lightness: 40%);
+  color: $danger;
+  border-radius: $radius-sm;
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.join-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.join-card__input {
+  border: 3px solid $primary-light;
+  border-radius: $radius-md;
+  padding: 0.8rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: $text-dark;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $primary;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+    font-weight: 600;
+  }
+}
+
+// ─── Loading Placeholder ─────────────────────────────────────────────────────
+
+.phase-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+
+  p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid $primary-light;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

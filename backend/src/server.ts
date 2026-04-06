@@ -2,6 +2,7 @@
 // Wires Express app + WebSocket server on the same HTTP server
 
 import http from 'http';
+import path from 'path';
 import express from 'express';
 import { LobbyManager } from './lobby/lobby-manager';
 import { GameEngine, GameEngineCallbacks } from './game/game-engine';
@@ -72,6 +73,13 @@ const gameEngine = new GameEngine(itemStore, callbacks);
 const app = express();
 app.use(express.json());
 app.use(createRouter(lobbyManager));
+
+// ─── Serve Angular frontend in production ─────────────────────────────
+const frontendDist = path.join(__dirname, '..', '..', '..', 'frontend', 'dist', 'frontend', 'browser');
+app.use(express.static(frontendDist));
+app.get(/^\/(?!api).*/, (_req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
 
 // ─── HTTP + WebSocket server ──────────────────────────────────────────
 

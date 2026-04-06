@@ -75,7 +75,7 @@ app.use(express.json());
 app.use(createRouter(lobbyManager));
 
 // ─── Serve Angular frontend in production ─────────────────────────────
-const frontendDist = path.join(__dirname, '..', '..', '..', 'frontend', 'dist', 'frontend', 'browser');
+const frontendDist = path.resolve(process.cwd(), 'frontend', 'dist', 'frontend', 'browser');
 app.use(express.static(frontendDist));
 app.get(/^\/(?!api).*/, (_req, res) => {
   res.sendFile(path.join(frontendDist, 'index.html'));

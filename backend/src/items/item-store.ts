@@ -22,7 +22,7 @@ export class ItemStore {
   private static loadFromFile(): ItemsByCategory {
     const fs = require('fs');
     const path = require('path');
-    const filePath = path.resolve(process.cwd(), 'data/items.json');
+    const filePath = path.resolve(__dirname, '..', '..', '..', '..', 'data', 'items.json');
     const raw = fs.readFileSync(filePath, 'utf-8');
     const items: Item[] = JSON.parse(raw);
     return ItemStore.groupByCategory(items);

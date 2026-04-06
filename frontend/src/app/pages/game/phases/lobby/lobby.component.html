@@ -22,85 +22,117 @@
     </div>
   </header>
 
-  <div class="lobby__content" [class.lobby__content--host]="gameState.isHost()">
-    <!-- Host settings panel -->
-    @if (gameState.isHost()) {
-      <app-card [title]="'lobby.settingsTitle' | translate">
-        <div class="setting">
-          <label class="setting__label" for="rounds-slider">
-            {{ 'lobby.rounds' | translate }} <strong>{{ gameState.config()?.rounds ?? 5 }}</strong>
-          </label>
-          <input
-            id="rounds-slider"
-            class="setting__slider"
-            type="range"
-            min="1"
-            max="20"
-            [value]="gameState.config()?.rounds ?? 5"
-            (input)="updateRounds($event)"
-          />
-          <div class="setting__range"><span>1</span><span>20</span></div>
-        </div>
+  <div class="lobby__content lobby__content--two-col">
+    <!-- Settings panel (read-only for non-host) -->
+    <app-card [title]="'lobby.settingsTitle' | translate">
+      <div class="setting">
+        <label class="setting__label" for="rounds-slider">
+          {{ 'lobby.rounds' | translate }} <strong>{{ gameState.config()?.rounds ?? 5 }}</strong>
+        </label>
+        <input
+          id="rounds-slider"
+          class="setting__slider"
+          type="range"
+          min="1"
+          max="20"
+          [value]="gameState.config()?.rounds ?? 5"
+          [disabled]="!gameState.isHost()"
+          (input)="updateRounds($event)"
+        />
+        <div class="setting__range"><span>1</span><span>20</span></div>
+      </div>
 
-        <div class="setting">
-          <label class="setting__label" for="timer-slider">
-            {{ 'lobby.timer' | translate }} <strong>{{ gameState.config()?.timerSeconds ?? 15 }}s</strong>
-          </label>
+      <div class="setting">
+        <label class="setting__label" for="timer-slider">
           <input
-            id="timer-slider"
-            class="setting__slider"
-            type="range"
-            min="5"
-            max="120"
-            [value]="gameState.config()?.timerSeconds ?? 15"
-            (input)="updateTimer($event)"
+            id="timer-checkbox"
+            class="setting__checkbox"
+            type="checkbox"
+            [checked]="isTimerEnabled()"
+            [disabled]="!gameState.isHost()"
+            (change)="toggleTimer($event)"
+            [attr.aria-label]="'lobby.timer' | translate"
           />
-          <div class="setting__range"><span>5s</span><span>120s</span></div>
-        </div>
+          {{ 'lobby.timer' | translate }}
+          @if (isTimerEnabled()) {
+            <strong>{{ timerValue() }}s</strong>
+          } @else {
+            <strong>{{ 'lobby.off' | translate }}</strong>
+          }
+        </label>
+        <input
+          id="timer-slider"
+          class="setting__slider"
+          type="range"
+          min="5"
+          max="120"
+          [value]="timerValue()"
+          [disabled]="!isTimerEnabled() || !gameState.isHost()"
+          (input)="updateTimer($event)"
+        />
+        <div class="setting__range"><span>5s</span><span>120s</span></div>
+      </div>
 
-        <div class="setting">
-          <label class="setting__label" for="between-rounds-slider">
-            {{ 'lobby.timeBetweenRounds' | translate }}
-            @if ((gameState.config()?.timeBetweenRounds ?? 0) === 0) {
-              <strong>{{ 'lobby.off' | translate }}</strong>
+      <div class="setting">
+        <label class="setting__label" for="between-rounds-slider">
+          <input
+            id="between-rounds-checkbox"
+            class="setting__checkbox"
+            type="checkbox"
+            [checked]="isAutoAdvanceEnabled()"
+            [disabled]="!gameState.isHost()"
+            (change)="toggleAutoAdvance($event)"
+            [attr.aria-label]="'lobby.timeBetweenRounds' | translate"
+          />
+          {{ 'lobby.timeBetweenRounds' | translate }}
+          @if (isAutoAdvanceEnabled()) {
+            @if (autoAdvanceValue() === 0) {
+              <strong>{{ 'lobby.immediate' | translate }}</strong>
             } @else {
-              <strong>{{ gameState.config()?.timeBetweenRounds }}s</strong>
+              <strong>{{ autoAdvanceValue() }}s</strong>
             }
-          </label>
-          <input
-            id="between-rounds-slider"
-            class="setting__slider"
-            type="range"
-            min="0"
-            max="60"
-            [value]="gameState.config()?.timeBetweenRounds ?? 0"
-            (input)="updateTimeBetweenRounds($event)"
-          />
-          <div class="setting__range"><span>{{ 'lobby.off' | translate }}</span><span>60s</span></div>
-        </div>
+          } @else {
+            <strong>{{ 'lobby.off' | translate }}</strong>
+          }
+        </label>
+        <input
+          id="between-rounds-slider"
+          class="setting__slider"
+          type="range"
+          min="0"
+          max="60"
+          [value]="autoAdvanceValue()"
+          [disabled]="!isAutoAdvanceEnabled() || !gameState.isHost()"
+          (input)="updateTimeBetweenRounds($event)"
+        />
+        <div class="setting__range"><span>{{ 'lobby.immediate' | translate }}</span><span>60s</span></div>
+      </div>
 
-        <div class="setting">
-          <span class="setting__label">{{ 'lobby.mode' | translate }}</span>
-          <div class="setting__toggle">
-            <button
-              class="setting__toggle-btn"
-              [class.setting__toggle-btn--active]="gameState.config()?.mode === 'category'"
-              (click)="updateMode('category')"
-              [attr.aria-label]="'lobby.categoryMode' | translate"
-            >
-              {{ 'lobby.categoryMode' | translate }}
-            </button>
-            <button
-              class="setting__toggle-btn"
-              [class.setting__toggle-btn--active]="gameState.config()?.mode === 'random'"
-              (click)="updateMode('random')"
-              [attr.aria-label]="'lobby.randomMode' | translate"
-            >
-              {{ 'lobby.randomMode' | translate }}
-            </button>
-          </div>
+      <div class="setting">
+        <span class="setting__label">{{ 'lobby.mode' | translate }}</span>
+        <div class="setting__toggle">
+          <button
+            class="setting__toggle-btn"
+            [class.setting__toggle-btn--active]="gameState.config()?.mode === 'category'"
+            [disabled]="!gameState.isHost()"
+            (click)="updateMode('category')"
+            [attr.aria-label]="'lobby.categoryMode' | translate"
+          >
+            {{ 'lobby.categoryMode' | translate }}
+          </button>
+          <button
+            class="setting__toggle-btn"
+            [class.setting__toggle-btn--active]="gameState.config()?.mode === 'random'"
+            [disabled]="!gameState.isHost()"
+            (click)="updateMode('random')"
+            [attr.aria-label]="'lobby.randomMode' | translate"
+          >
+            {{ 'lobby.randomMode' | translate }}
+          </button>
         </div>
+      </div>
 
+      @if (gameState.isHost()) {
         <app-button
           variant="success"
           [fullWidth]="true"
@@ -112,8 +144,8 @@
         @if (gameState.players().length < 3) {
           <p class="lobby__start-hint">{{ 'lobby.startHint' | translate }}</p>
         }
-      </app-card>
-    }
+      }
+    </app-card>
 
     <!-- Player list -->
     <app-card [title]="'lobby.playersTitle' | translate:{ count: gameState.players().length }">

@@ -23,6 +23,32 @@ export class LobbyComponent {
 
   readonly linkCopied = signal(false);
 
+  /** Last slider value to restore when re-enabling timer */
+  private readonly lastTimerValue = signal(15);
+
+  /** Last slider value to restore when re-enabling auto-advance */
+  private readonly lastAutoAdvanceValue = signal(5);
+
+  readonly isTimerEnabled = computed(() => {
+    const val = this.gameState.config()?.timerSeconds ?? 15;
+    return val >= 0;
+  });
+
+  readonly timerValue = computed(() => {
+    const val = this.gameState.config()?.timerSeconds ?? 15;
+    return val >= 0 ? val : this.lastTimerValue();
+  });
+
+  readonly isAutoAdvanceEnabled = computed(() => {
+    const val = this.gameState.config()?.timeBetweenRounds ?? -1;
+    return val >= 0;
+  });
+
+  readonly autoAdvanceValue = computed(() => {
+    const val = this.gameState.config()?.timeBetweenRounds ?? -1;
+    return val >= 0 ? val : this.lastAutoAdvanceValue();
+  });
+
   readonly shareableLink = computed(() => {
     const code = this.gameState.lobbyCode();
     if (!code) return '';
@@ -46,6 +72,16 @@ export class LobbyComponent {
 
   updateTimer(event: Event): void {
     const value = (event.target as HTMLInputElement).valueAsNumber;
+    this.lastTimerValue.set(value);
+    this.ws.send({
+      type: CLIENT_MSG.UPDATE_CONFIG,
+      payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { timerSeconds: value } },
+    });
+  }
+
+  toggleTimer(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const value = checked ? this.lastTimerValue() : -1;
     this.ws.send({
       type: CLIENT_MSG.UPDATE_CONFIG,
       payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { timerSeconds: value } },
@@ -54,6 +90,16 @@ export class LobbyComponent {
 
   updateTimeBetweenRounds(event: Event): void {
     const value = (event.target as HTMLInputElement).valueAsNumber;
+    this.lastAutoAdvanceValue.set(value);
+    this.ws.send({
+      type: CLIENT_MSG.UPDATE_CONFIG,
+      payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { timeBetweenRounds: value } },
+    });
+  }
+
+  toggleAutoAdvance(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const value = checked ? this.lastAutoAdvanceValue() : -1;
     this.ws.send({
       type: CLIENT_MSG.UPDATE_CONFIG,
       payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { timeBetweenRounds: value } },

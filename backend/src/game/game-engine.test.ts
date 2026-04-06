@@ -39,7 +39,7 @@ function makeLobby(overrides: Partial<Lobby> = {}): Lobby {
     code: 'ABCDEF',
     hostId: 'p1',
     players,
-    config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' },
+    config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' },
     state: 'waiting',
     gameSession: null,
     previousWinnerId: null,
@@ -319,7 +319,7 @@ describe('GameEngine', () => {
     });
 
     it('advances to round_results state for non-final rounds', () => {
-      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -351,7 +351,7 @@ describe('GameEngine', () => {
 
   describe('game end', () => {
     it('transitions to results state on final round', () => {
-      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -365,7 +365,7 @@ describe('GameEngine', () => {
     });
 
     it('broadcasts onGameEnd with leaderboard, winnerId, and isTie', () => {
-      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -382,7 +382,7 @@ describe('GameEngine', () => {
     });
 
     it('sets previousWinnerId on game end', () => {
-      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 1, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -397,7 +397,7 @@ describe('GameEngine', () => {
 
   describe('not enough players (minimum 3)', () => {
     it('ends game at round end when fewer than 3 active connected players remain', () => {
-      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       // Disconnect p3 mid-round so only 2 active connected players remain
@@ -415,7 +415,7 @@ describe('GameEngine', () => {
     });
 
     it('ends game when host tries to advance to next round with fewer than 3 players', () => {
-      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -437,7 +437,7 @@ describe('GameEngine', () => {
     });
 
     it('continues game when exactly 3 active connected players remain', () => {
-      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -454,7 +454,7 @@ describe('GameEngine', () => {
 
   describe('nextRound', () => {
     it('starts the next round when in round_results state', () => {
-      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       const items = lobby.gameSession!.rounds[0].items;
@@ -485,7 +485,7 @@ describe('GameEngine', () => {
 
   describe('full game lifecycle', () => {
     it('plays through all rounds and ends the game', () => {
-      const lobby = makeLobby({ config: { rounds: 2, timerSeconds: 10, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 2, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       // Round 1
@@ -631,7 +631,7 @@ describe('GameEngine', () => {
 
   describe('timer expiry', () => {
     it('ends the round when timer expires', () => {
-      const lobby = makeLobby({ config: { rounds: 2, timerSeconds: 10, timeBetweenRounds: 0, mode: 'random' } });
+      const lobby = makeLobby({ config: { rounds: 2, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' } });
       engine.startGame(lobby);
 
       // Don't submit any rankings — let timer expire

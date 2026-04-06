@@ -4,7 +4,6 @@ import {
   CdkDrag,
   CdkDropList,
   CdkDragPlaceholder,
-  CdkDragPreview,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,7 +17,7 @@ import type { Item } from '@shared/types';
 @Component({
   selector: 'app-gameplay',
   standalone: true,
-  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, CdkDragPreview, TranslateModule, BannerComponent, ButtonComponent],
+  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, TranslateModule, BannerComponent, ButtonComponent],
   templateUrl: './gameplay.component.html',
   styleUrl: './gameplay.component.scss',
 })

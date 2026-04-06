@@ -1,11 +1,18 @@
 {
   "hub": {
-    "title": "🎮 Game Hub",
+    "title": "🎮 Gaming's Princes",
     "subtitle": "Pick a game and play with friends!",
     "loading": "Loading games...",
     "retry": "Retry",
     "openGame": "Open {{title}} in new tab",
-    "playGame": "Play {{title}}"
+    "playGame": "Play {{title}}",
+	"descriptions": {
+		"ranking-game": "Rank, dispair, repeat",
+		"gartic-phone": "The telephone game meets drawing",
+		"bombparty": "Explosive word game",
+		"dialed-gg": "How well can you remember colors?",
+		"popsauce": "Blind test for your eyes"
+	}
   },
   "join": {
     "title": "🎮 Join Game",
@@ -25,6 +32,7 @@
     "timer": "Timer:",
     "timeBetweenRounds": "Auto-advance:",
     "off": "Off",
+    "immediate": "Immediate",
     "mode": "Mode:",
     "categoryMode": "📂 Category",
     "randomMode": "🎲 Random",

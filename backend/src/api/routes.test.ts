@@ -80,7 +80,7 @@ describe('REST API routes', () => {
       expect(res.body.config).toEqual({
         rounds: 5,
         timerSeconds: 15,
-        timeBetweenRounds: 0,
+        timeBetweenRounds: -1,
         mode: 'random',
       });
     });

@@ -1,11 +1,18 @@
 {
   "hub": {
-    "title": "🎮 Hub de Jeux",
+    "title": "🎮 Les Princes du Gaming",
     "subtitle": "Choisis un jeu et joue avec tes amis !",
     "loading": "Chargement des jeux...",
     "retry": "Réessayer",
     "openGame": "Ouvrir {{title}} dans un nouvel onglet",
-    "playGame": "Jouer à {{title}}"
+    "playGame": "Jouer à {{title}}",
+	"descriptions": {
+		"ranking-game": "Classez, désespérez, répétez",
+		"gartic-phone": "Le jeu du téléphone arabe mêlé au dessin",
+		"bombparty": "Jeu de mots explosifs",
+		"dialed-gg": "Mémorisation de couleurs",
+		"popsauce": "Blind test pour les yeux"
+	}
   },
   "join": {
     "title": "🎮 Rejoindre la partie",
@@ -25,6 +32,7 @@
     "timer": "Chrono :",
     "timeBetweenRounds": "Avance auto :",
     "off": "Désactivé",
+    "immediate": "Immédiat",
     "mode": "Mode :",
     "categoryMode": "📂 Catégorie",
     "randomMode": "🎲 Aléatoire",

@@ -59,7 +59,7 @@
   flex-direction: column;
   gap: 1.5rem;
 
-  &--host {
+  &--two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
@@ -95,6 +95,23 @@
   outline: none;
   cursor: pointer;
 
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      background: $text-muted;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    &::-moz-range-thumb {
+      background: $text-muted;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+  }
+
   &::-webkit-slider-thumb {
     appearance: none;
     width: 22px;
@@ -120,6 +137,22 @@
     box-shadow: 0 2px 6px rgba(124, 77, 255, 0.3);
     cursor: pointer;
   }
+}
+
+.setting__slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.setting__checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: $primary;
+  cursor: pointer;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 0.3rem;
 }
 
 .setting__range {
@@ -155,8 +188,13 @@
     border-color: $primary-dark;
   }
 
-  &:hover:not(&--active) {
+  &:hover:not(&--active):not(:disabled) {
     border-color: $primary-light;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
@@ -238,7 +276,7 @@
 // ─── Responsive ──────────────────────────────────────────────────────────────
 
 @media (max-width: 700px) {
-  .lobby__content--host {
+  .lobby__content--two-col {
     grid-template-columns: 1fr;
   }
 

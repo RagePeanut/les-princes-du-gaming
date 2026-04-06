@@ -43,21 +43,22 @@ describe('validateGameConfig', () => {
     expect(result.errors).toContain('rounds must be an integer');
   });
 
-  it('accepts boundary values for timerSeconds (5 and 120)', () => {
+  it('accepts boundary values for timerSeconds (-1, 5 and 120)', () => {
+    expect(validateGameConfig({ timerSeconds: -1 }).valid).toBe(true);
     expect(validateGameConfig({ timerSeconds: 5 }).valid).toBe(true);
     expect(validateGameConfig({ timerSeconds: 120 }).valid).toBe(true);
   });
 
-  it('rejects timerSeconds below 5', () => {
+  it('rejects timerSeconds between -1 and 5 exclusive', () => {
     const result = validateGameConfig({ timerSeconds: 4 });
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('timerSeconds must be between 5 and 120');
+    expect(result.errors).toContain('timerSeconds must be -1 or between 5 and 120');
   });
 
   it('rejects timerSeconds above 120', () => {
     const result = validateGameConfig({ timerSeconds: 121 });
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('timerSeconds must be between 5 and 120');
+    expect(result.errors).toContain('timerSeconds must be -1 or between 5 and 120');
   });
 
   it('rejects non-integer timerSeconds', () => {

@@ -17,7 +17,9 @@ export type LobbyState = 'waiting' | 'playing' | 'round_results' | 'results' | '
 
 export interface GameConfig {
   rounds: number;
+  /** -1 = no time limit, 5-120 = round timer in seconds */
   timerSeconds: number;
+  /** -1 = disabled (host advances manually), 0 = immediate, 1-60 = delay in seconds */
   timeBetweenRounds: number;
   mode: 'category' | 'random';
 }
@@ -62,7 +64,6 @@ export interface Lobby {
 export interface GameCard {
   id: string;
   title: string;
-  description: string;
   imageUrl: string;
   isExternal: boolean;
   externalUrl?: string;

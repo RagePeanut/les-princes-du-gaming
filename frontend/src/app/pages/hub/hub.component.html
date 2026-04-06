@@ -42,7 +42,7 @@
             </div>
             <div class="game-card__body">
               <h2 class="game-card__title">{{ game.title }}</h2>
-              <p class="game-card__description">{{ game.description }}</p>
+              <p class="game-card__description">{{ 'hub.descriptions.' + game.id | translate }}</p>
             </div>
           </a>
         } @else {
@@ -61,7 +61,7 @@
             </div>
             <div class="game-card__body">
               <h2 class="game-card__title">{{ game.title }}</h2>
-              <p class="game-card__description">{{ game.description }}</p>
+              <p class="game-card__description">{{ 'hub.descriptions.' + game.id | translate }}</p>
             </div>
           </button>
         }

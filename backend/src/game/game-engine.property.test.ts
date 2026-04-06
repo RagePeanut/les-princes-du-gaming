@@ -36,7 +36,7 @@ function makeLobby(players: Map<string, Player>, overrides: Partial<Lobby> = {})
     code: 'TEST01',
     hostId: firstPlayer?.id ?? 'p0',
     players,
-    config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: 0, mode: 'random' },
+    config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' },
     state: 'waiting',
     gameSession: null,
     previousWinnerId: null,
@@ -123,7 +123,7 @@ describe('Property 4: Round completion captures current rankings', () => {
           }
 
           const lobby = makeLobby(players, {
-            config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: 0, mode: 'random' },
+            config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' },
           });
 
           engine.startGame(lobby);
@@ -237,7 +237,7 @@ describe('Property 11: Rematch lobby membership, crown assignment, and spectator
           const lobby = makeLobby(players, {
             previousWinnerId,
             state: 'results',
-            config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: 0, mode: 'random' },
+            config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' },
           });
 
           // Snapshot which players are connected before rematch

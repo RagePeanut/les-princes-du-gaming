@@ -5,7 +5,7 @@
     aria-label="Language"
   >
     @for (lang of languages; track lang) {
-      <option [value]="lang">{{ lang | uppercase }}</option>
+      <option [value]="lang" [selected]="lang === currentLang">{{ lang | uppercase }}</option>
     }
   </select>
 </div>

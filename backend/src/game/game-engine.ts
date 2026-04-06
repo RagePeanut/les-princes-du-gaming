@@ -96,18 +96,20 @@ export class GameEngine {
       lobby.config.timerSeconds
     );
 
-    // Start countdown timer
-    startTimer(
-      lobby.code,
-      lobby.config.timerSeconds,
-      (secondsRemaining) => {
-        this.callbacks.onTimerTick(lobby.code, secondsRemaining);
-      },
-      () => {
-        // Timer expired — end the round
-        this.endRound(lobby);
-      }
-    );
+    // Start countdown timer (only if timer is enabled)
+    if (lobby.config.timerSeconds >= 0) {
+      startTimer(
+        lobby.code,
+        lobby.config.timerSeconds,
+        (secondsRemaining) => {
+          this.callbacks.onTimerTick(lobby.code, secondsRemaining);
+        },
+        () => {
+          // Timer expired — end the round
+          this.endRound(lobby);
+        }
+      );
+    }
   }
 
   /**
@@ -266,7 +268,7 @@ export class GameEngine {
       );
 
       // Start between-rounds auto-advance timer if configured
-      if (lobby.config.timeBetweenRounds > 0) {
+      if (lobby.config.timeBetweenRounds >= 0) {
         const timerKey = `betweenRounds:${lobby.code}`;
         startTimer(
           timerKey,

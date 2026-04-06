@@ -47,6 +47,10 @@
       color: #fff;
     }
   }
+
+  &--hidden {
+    display: none;
+  }
 }
 
 .gameplay__timer-icon {
@@ -97,12 +101,20 @@
   box-shadow: $shadow-card;
   padding: 0.6rem 0.8rem;
   cursor: grab;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.2s;
   user-select: none;
 
   &:active { cursor: grabbing; }
   &--readonly { cursor: default; &:active { cursor: default; } }
   &--disabled { cursor: default; opacity: 0.7; &:active { cursor: default; } }
+}
+
+.cdk-drag-animating {
+  transition: transform 0ms;
+}
+
+.cdk-drop-list-dragging .item-card:not(.cdk-drag-placeholder) {
+  transition: transform 0ms;
 }
 
 .item-card__rank {
@@ -157,26 +169,6 @@
   border-radius: $radius-md;
   opacity: 0.6;
   min-height: 92px;
-}
-
-.cdk-drag-animating {
-  transition: transform 10ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.gameplay__items.cdk-drop-list-dragging .item-card:not(.cdk-drag-placeholder) {
-  transition: transform 10ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.item-card__drag-preview {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: $card-bg;
-  border-radius: $radius-md;
-  box-shadow: $shadow-elevated;
-  padding: 0.6rem 0.8rem;
-  transform: scale(1.04);
-  opacity: 0.95;
 }
 
 // ─── Responsive ──────────────────────────────────────────────────────────────

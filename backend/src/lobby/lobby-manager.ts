@@ -16,7 +16,7 @@ export interface ValidationResult {
 export const DEFAULT_CONFIG: GameConfig = {
   rounds: 5,
   timerSeconds: 15,
-  timeBetweenRounds: 0,
+  timeBetweenRounds: -1,
   mode: 'random',
 };
 
@@ -34,16 +34,16 @@ export function validateGameConfig(config: Partial<GameConfig>): ValidationResul
   if (config.timerSeconds !== undefined) {
     if (typeof config.timerSeconds !== 'number' || !Number.isInteger(config.timerSeconds)) {
       errors.push('timerSeconds must be an integer');
-    } else if (config.timerSeconds < 5 || config.timerSeconds > 120) {
-      errors.push('timerSeconds must be between 5 and 120');
+    } else if (config.timerSeconds !== -1 && (config.timerSeconds < 5 || config.timerSeconds > 120)) {
+      errors.push('timerSeconds must be -1 or between 5 and 120');
     }
   }
 
   if (config.timeBetweenRounds !== undefined) {
     if (typeof config.timeBetweenRounds !== 'number' || !Number.isInteger(config.timeBetweenRounds)) {
       errors.push('timeBetweenRounds must be an integer');
-    } else if (config.timeBetweenRounds < 0 || config.timeBetweenRounds > 60) {
-      errors.push('timeBetweenRounds must be between 0 and 60');
+    } else if (config.timeBetweenRounds < -1 || config.timeBetweenRounds > 60) {
+      errors.push('timeBetweenRounds must be between -1 and 60');
     }
   }
 

@@ -7,7 +7,7 @@
       </span>
     </div>
 
-    <div class="gameplay__timer" [class.gameplay__timer--urgent]="gameState.timerSeconds() <= 5">
+    <div class="gameplay__timer" [class.gameplay__timer--urgent]="gameState.timerSeconds() <= 5" [class.gameplay__timer--hidden]="gameState.timerSeconds() < 0">
       <span class="gameplay__timer-icon">⏱️</span>
       <span class="gameplay__timer-value">{{ gameState.timerSeconds() }}s</span>
     </div>
@@ -60,13 +60,6 @@
             <span class="item-card__name">{{ 'items.' + item.id | translate }}</span>
           </div>
           <div class="item-card__drag-handle" *cdkDragPlaceholder></div>
-          <div class="item-card__drag-preview" *cdkDragPreview>
-            <div class="item-card__rank">{{ $index + 1 }}</div>
-            <div class="item-card__image-wrapper">
-              <img class="item-card__image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
-              <span class="item-card__name">{{ 'items.' + item.id | translate }}</span>
-            </div>
-          </div>
         </div>
       }
     </div>

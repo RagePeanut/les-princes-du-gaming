@@ -24,18 +24,18 @@ export class LobbyComponent {
   readonly linkCopied = signal(false);
 
   /** Last slider value to restore when re-enabling timer */
-  private readonly lastTimerValue = signal(15);
+  private readonly lastTimerValue = signal(30);
 
   /** Last slider value to restore when re-enabling auto-advance */
   private readonly lastAutoAdvanceValue = signal(5);
 
   readonly isTimerEnabled = computed(() => {
-    const val = this.gameState.config()?.timerSeconds ?? 15;
+    const val = this.gameState.config()?.timerSeconds ?? 30;
     return val >= 0;
   });
 
   readonly timerValue = computed(() => {
-    const val = this.gameState.config()?.timerSeconds ?? 15;
+    const val = this.gameState.config()?.timerSeconds ?? 30;
     return val >= 0 ? val : this.lastTimerValue();
   });
 

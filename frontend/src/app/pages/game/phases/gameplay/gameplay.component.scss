@@ -71,6 +71,30 @@
 
 // ─── Instruction ─────────────────────────────────────────────────────────────
 
+.gameplay__category {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.gameplay__category-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.gameplay__category-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  background: $primary;
+  border-radius: $radius-md;
+  padding: 0.25rem 0.7rem;
+  text-transform: capitalize;
+}
+
 .gameplay__instruction {
   text-align: center;
   font-size: 1rem;

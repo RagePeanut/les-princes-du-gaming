@@ -11,7 +11,9 @@
 		"gartic-phone": "Le jeu du téléphone arabe mêlé au dessin",
 		"bombparty": "Jeu de mots explosifs",
 		"dialed-gg": "Mémorisation de couleurs",
-		"popsauce": "Blind test pour les yeux"
+		"popsauce": "Blind test pour les yeux",
+		"skribbl": "Jeu multijoueur de dessin et de devinettes en ligne",
+		"dialed-sound": "Mémorisation de sons"
 	}
   },
   "join": {
@@ -46,6 +48,7 @@
   },
   "gameplay": {
     "round": "Manche {{current}} sur {{total}}",
+    "category": "Catégorie :",
     "spectating": "Spectateur",
     "submittedBanner": "✅",
     "submittedText": "Envoyé !",
@@ -87,7 +90,61 @@
     "createLobby": "Impossible de créer le salon. Réessaie.",
     "lobbyNotFound": "Ce salon n'existe pas ou a expiré."
   },
+  "tierlist": {
+    "lobby": {
+      "title": "🎯 Tier List Game",
+      "timer": "Chrono de vote :",
+      "mode": "Mode :",
+      "categoryMode": "📂 Catégorie",
+      "randomMode": "🎲 Aléatoire",
+      "startGame": "🚀 Lancer la partie",
+      "startHint": "Il faut au moins 2 joueurs pour commencer"
+    },
+    "roulette": {
+      "title": "🎰 Sélection du thème...",
+      "selected": "Thème sélectionné !"
+    },
+    "gameplay": {
+      "theme": "Thème :",
+      "item": "Élément {{current}}/{{total}}",
+      "instruction": "Clique sur un tier pour placer l'élément",
+      "voted": "✅ Vote envoyé !",
+      "confirm": "✅ Confirmer le vote",
+      "waiting": "En attente des autres joueurs...",
+      "spectating": "Mode spectateur",
+      "timerExpired": "Temps écoulé !"
+    },
+    "suspense": {
+      "title": "🥁 Suspense...",
+      "revealing": "Révélation du résultat..."
+    },
+    "roundResult": {
+      "title": "📊 Résultat — Élément {{round}}",
+      "finalTier": "Tier final :",
+      "average": "Moyenne : {{value}}",
+      "playerVotes": "Votes des joueurs",
+      "scores": "Scores de la manche",
+      "leaderboard": "🏆 Classement",
+      "nextRound": "➡️ Manche suivante"
+    },
+    "endGame": {
+      "title": "🏆 Fin de partie !",
+      "tierListTitle": "🎯 Tier List Finale",
+      "showLeaderboard": "📊 Voir le classement",
+      "hideLeaderboard": "🎯 Voir la tier list",
+      "leaderboard": "Classement final",
+      "tieMsg": "🤝 Ex-æquo !",
+      "rematchIn": "Revanche dans"
+    }
+  },
   "loading": "Chargement de la partie...",
+  "categories": {
+    "pasta": "Pâtes",
+    "pizza-toppings": "Garnitures de pizza",
+    "animals": "Animaux",
+    "movies": "Films",
+    "sports": "Sports"
+  },
   "items": {
     "pasta-spaghetti": "Spaghetti",
     "pasta-penne": "Penne",

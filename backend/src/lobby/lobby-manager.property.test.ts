@@ -38,13 +38,13 @@ describe('Property 1: GameConfig validation accepts valid ranges and rejects inv
     );
   });
 
-  it('accepts timerSeconds if and only if 5 <= timerSeconds <= 120', () => {
+  it('accepts timerSeconds if and only if timerSeconds is -1 or 5 <= timerSeconds <= 120', () => {
     fc.assert(
       fc.property(fc.integer({ min: -1000, max: 1000 }), (timerSeconds: number) => {
         const result = validateGameConfig({ timerSeconds });
-        const isInRange = timerSeconds >= 5 && timerSeconds <= 120;
+        const isValid = timerSeconds === -1 || (timerSeconds >= 5 && timerSeconds <= 120);
 
-        if (isInRange) {
+        if (isValid) {
           expect(result.valid).toBe(true);
           expect(result.errors).toHaveLength(0);
         } else {
@@ -56,14 +56,14 @@ describe('Property 1: GameConfig validation accepts valid ranges and rejects inv
     );
   });
 
-  it('defaults timerSeconds to 15 when omitted', () => {
+  it('defaults timerSeconds to 30 when omitted', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 20 }),
         fc.constantFrom<'category' | 'random'>('category', 'random'),
         (rounds: number, mode: 'category' | 'random') => {
           const config = buildFullConfig({ rounds, mode });
-          expect(config.timerSeconds).toBe(15);
+          expect(config.timerSeconds).toBe(30);
           expect(config.rounds).toBe(rounds);
           expect(config.mode).toBe(mode);
         },

@@ -13,7 +13,7 @@ export interface Player {
   joinOrder: number;
 }
 
-export type LobbyState = 'waiting' | 'playing' | 'round_results' | 'results' | 'rematch_countdown';
+export type LobbyState = 'waiting' | 'playing' | 'round_results' | 'results' | 'rematch_countdown' | 'roulette' | 'suspense';
 
 export interface GameConfig {
   rounds: number;
@@ -49,6 +49,57 @@ export interface GameSession {
   cumulativeScores: Map<string, number>;
 }
 
+// --- Tier List Game Types ---
+
+export type TierName = 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
+
+export const TIER_VALUES: Record<TierName, number> = {
+  S: 6, A: 5, B: 4, C: 3, D: 2, F: 1
+};
+
+export const TIER_COLORS: Record<TierName, string> = {
+  S: '#FF7F7F', A: '#FFBF7F', B: '#FFDF7F',
+  C: '#BFFF7F', D: '#7FBFFF', F: '#FF7FBF'
+};
+
+export const TIER_THRESHOLDS: { tier: TierName; minAverage: number }[] = [
+  { tier: 'S', minAverage: 5.5 },
+  { tier: 'A', minAverage: 4.5 },
+  { tier: 'B', minAverage: 3.5 },
+  { tier: 'C', minAverage: 2.5 },
+  { tier: 'D', minAverage: 1.5 },
+  { tier: 'F', minAverage: -Infinity },
+];
+
+export interface TierListRoundData {
+  roundIndex: number;
+  item: Item;
+  votes: Map<string, TierName>;
+  averageValue: number;
+  finalTier: TierName;
+  scores: Map<string, number>;
+  timerStartedAt: number;
+  isComplete: boolean;
+}
+
+export interface TierListGameSession {
+  theme: string;
+  items: Item[];
+  currentRound: number;
+  totalRounds: number;
+  rounds: TierListRoundData[];
+  cumulativeScores: Map<string, number>;
+  tierListResult: Map<TierName, Item[]>;
+}
+
+export interface TierListResult {
+  tiers: {
+    tier: TierName;
+    color: string;
+    items: Item[];
+  }[];
+}
+
 export interface Lobby {
   code: string;
   hostId: string;
@@ -56,6 +107,8 @@ export interface Lobby {
   config: GameConfig;
   state: LobbyState;
   gameSession: GameSession | null;
+  gameType: 'ranking' | 'tierlist';
+  tierListSession: TierListGameSession | null;
   previousWinnerId: string | null;
   createdAt: number;
   nextJoinOrder: number;

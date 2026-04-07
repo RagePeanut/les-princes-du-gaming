@@ -15,9 +15,9 @@ export interface ValidationResult {
 
 export const DEFAULT_CONFIG: GameConfig = {
   rounds: 5,
-  timerSeconds: 15,
+  timerSeconds: 30,
   timeBetweenRounds: -1,
-  mode: 'random',
+  mode: 'category',
 };
 
 export function validateGameConfig(config: Partial<GameConfig>): ValidationResult {
@@ -96,7 +96,7 @@ export class LobbyManager {
    * Creates a new lobby with the given config.
    * Generates a unique 6-char alphanumeric code.
    */
-  createLobby(config: Partial<GameConfig> = {}): Lobby {
+  createLobby(config: Partial<GameConfig> = {}, gameType: 'ranking' | 'tierlist' = 'ranking'): Lobby {
     const validation = validateGameConfig(config);
     if (!validation.valid) {
       throw new Error(validation.errors.join('; '));
@@ -117,6 +117,8 @@ export class LobbyManager {
       config: fullConfig,
       state: 'waiting',
       gameSession: null,
+      gameType,
+      tierListSession: null,
       previousWinnerId: null,
       createdAt: Date.now(),
       nextJoinOrder: 0,

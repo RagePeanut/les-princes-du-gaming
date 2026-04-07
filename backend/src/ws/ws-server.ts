@@ -5,6 +5,9 @@ import { Server as HttpServer } from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import { LobbyManager } from '../lobby/lobby-manager';
 import { GameEngine } from '../game/game-engine';
+import { TierListGameEngine, TierListGameEngineCallbacks } from '../tierlist/tierlist-game-engine';
+import { buildTierListLeaderboard } from '../tierlist/tierlist-scoring-engine';
+import { ItemStore } from '../items/item-store';
 import { Lobby, Player } from '../../../shared/types';
 import {
   CLIENT_MSG,
@@ -33,6 +36,7 @@ export class GameWebSocketServer {
   private wss: WebSocketServer;
   private lobbyManager: LobbyManager;
   private gameEngine: GameEngine;
+  private tierListEngine: TierListGameEngine;
 
   // socket → metadata
   private socketMeta = new Map<WebSocket, SocketMeta>();
@@ -41,9 +45,69 @@ export class GameWebSocketServer {
   // playerId → disconnect timer
   private disconnectTimers = new Map<string, DisconnectTimer>();
 
-  constructor(server: HttpServer, lobbyManager: LobbyManager, gameEngine: GameEngine) {
+  constructor(server: HttpServer, lobbyManager: LobbyManager, gameEngine: GameEngine, itemStore: ItemStore) {
     this.lobbyManager = lobbyManager;
     this.gameEngine = gameEngine;
+
+    // Build tier list engine callbacks that broadcast via this server
+    const tierListCallbacks: TierListGameEngineCallbacks = {
+      onRouletteStart: (lobbyCode, themes) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_ROULETTE_START,
+          payload: { themes },
+        });
+      },
+      onRouletteResult: (lobbyCode, theme, items) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_ROULETTE_RESULT,
+          payload: { theme, items },
+        });
+      },
+      onTierListRoundStart: (lobbyCode, roundIndex, item, totalItems, timerSeconds) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_ROUND_START,
+          payload: { roundIndex, item, totalItems, timerSeconds },
+        });
+      },
+      onVoteStatus: (lobbyCode, playerId, hasVoted) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_VOTE_STATUS,
+          payload: { playerId, hasVoted },
+        });
+      },
+      onSuspenseStart: (lobbyCode, roundIndex) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_SUSPENSE_START,
+          payload: { roundIndex },
+        });
+      },
+      onTierListRoundResult: (lobbyCode, roundIndex, item, finalTier, averageValue, votes, scores, leaderboard) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_ROUND_RESULT,
+          payload: { roundIndex, item, finalTier, averageValue, votes, scores, leaderboard },
+        });
+      },
+      onTierListGameEnded: (lobbyCode, tierList, leaderboard, winnerId, isTie) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIERLIST_GAME_ENDED,
+          payload: { tierList, leaderboard, winnerId, isTie },
+        });
+      },
+      onTimerTick: (lobbyCode, secondsRemaining) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.TIMER_TICK,
+          payload: { secondsRemaining },
+        });
+      },
+      onRematchCountdown: (lobbyCode, secondsRemaining) => {
+        this.broadcastToLobby(lobbyCode, {
+          type: SERVER_MSG.REMATCH_COUNTDOWN,
+          payload: { secondsRemaining },
+        });
+      },
+    };
+
+    this.tierListEngine = new TierListGameEngine(itemStore, tierListCallbacks);
     this.wss = new WebSocketServer({ server });
 
     this.wss.on('connection', (ws: WebSocket) => {
@@ -95,6 +159,9 @@ export class GameWebSocketServer {
         break;
       case CLIENT_MSG.NEXT_ROUND:
         this.handleNextRound(ws, msg.payload);
+        break;
+      case CLIENT_MSG.SUBMIT_TIER_VOTE:
+        this.handleSubmitTierVote(ws, msg.payload);
         break;
       default:
         this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Unknown message type.' } });
@@ -190,7 +257,11 @@ export class GameWebSocketServer {
     }
 
     try {
-      this.gameEngine.startGame(lobby);
+      if (lobby.gameType === 'tierlist') {
+        this.tierListEngine.startGame(lobby);
+      } else {
+        this.gameEngine.startGame(lobby);
+      }
     } catch (err: any) {
       this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: err.message } });
     }
@@ -217,6 +288,32 @@ export class GameWebSocketServer {
     }
 
     const result = this.gameEngine.submitRanking(lobby, meta.playerId, payload.ranking);
+    if (result.error) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: result.error } });
+    }
+  }
+
+  // ─── SUBMIT_TIER_VOTE ───────────────────────────────────────────────
+
+  private handleSubmitTierVote(ws: WebSocket, payload: { lobbyCode: string; roundIndex: number; tier: string; confirmed?: boolean }): void {
+    const meta = this.socketMeta.get(ws);
+    if (!meta) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not connected to a lobby.' } });
+      return;
+    }
+
+    const lobby = this.lobbyManager.getLobby(payload.lobbyCode);
+    if (!lobby) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Lobby not found.' } });
+      return;
+    }
+
+    if (meta.lobbyCode !== payload.lobbyCode) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not a member of this lobby.' } });
+      return;
+    }
+
+    const result = this.tierListEngine.submitVote(lobby, meta.playerId, payload.tier, !!payload.confirmed);
     if (result.error) {
       this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: result.error } });
     }
@@ -293,7 +390,11 @@ export class GameWebSocketServer {
       return;
     }
 
-    this.gameEngine.nextRound(lobby);
+    if (lobby.gameType === 'tierlist') {
+      this.tierListEngine.nextRound(lobby);
+    } else {
+      this.gameEngine.nextRound(lobby);
+    }
   }
 
   // ─── Disconnect / Reconnect ─────────────────────────────────────────
@@ -440,6 +541,22 @@ export class GameWebSocketServer {
   }
 
   private buildSpectatorPayload(lobby: Lobby): JoinedAsSpectatorPayload {
+    // Handle tier list game type
+    if (lobby.gameType === 'tierlist') {
+      const session = lobby.tierListSession;
+      let leaderboard: any[] = [];
+      if (session) {
+        const result = buildTierListLeaderboard(session.cumulativeScores, lobby.players);
+        leaderboard = result.leaderboard;
+      }
+      return {
+        gameState: lobby.state,
+        currentRound: session ? session.currentRound : 0,
+        leaderboard,
+      };
+    }
+
+    // Handle ranking game type (default)
     const session = lobby.gameSession;
     let leaderboard: any[] = [];
     if (session) {

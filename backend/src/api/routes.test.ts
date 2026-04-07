@@ -79,9 +79,9 @@ describe('REST API routes', () => {
       expect(res.body.playerCount).toBe(0);
       expect(res.body.config).toEqual({
         rounds: 5,
-        timerSeconds: 15,
+        timerSeconds: 30,
         timeBetweenRounds: -1,
-        mode: 'random',
+        mode: 'category',
       });
     });
 
@@ -119,6 +119,89 @@ describe('REST API routes', () => {
         expect(game.externalUrl).toBeDefined();
         expect(game.externalUrl).toMatch(/^https:\/\//);
       }
+    });
+  });
+});
+
+// ─── Tier List REST API Extensions ──────────────────────────────────────────
+
+import { ItemStore } from '../items/item-store';
+import { Item } from '../../../shared/types';
+
+function buildAppWithItemStore(lobbyManager: LobbyManager, itemStore: ItemStore) {
+  const app = express();
+  app.use(express.json());
+  app.use(createRouter(lobbyManager, itemStore));
+  return app;
+}
+
+describe('Tier List REST API extensions', () => {
+  let lobbyManager: LobbyManager;
+
+  beforeEach(() => {
+    lobbyManager = new LobbyManager();
+  });
+
+  // ─── POST /api/lobbies with gameType ────────────────────────────────
+
+  describe('POST /api/lobbies with gameType', () => {
+    it('creates a tierlist lobby and returns joinUrl containing /game/tierlist/', async () => {
+      const app = buildApp(lobbyManager);
+      const res = await request(app)
+        .post('/api/lobbies')
+        .send({ gameType: 'tierlist' });
+      expect(res.status).toBe(201);
+      expect(res.body.lobbyCode).toBeDefined();
+      expect(res.body.joinUrl).toContain('/game/tierlist/');
+    });
+
+    it('defaults to ranking gameType when gameType is not provided', async () => {
+      const app = buildApp(lobbyManager);
+      const res = await request(app)
+        .post('/api/lobbies')
+        .send({});
+      expect(res.status).toBe(201);
+      expect(res.body.joinUrl).toContain('/game/ranking/');
+    });
+  });
+
+  // ─── GET /api/themes ────────────────────────────────────────────────
+
+  describe('GET /api/themes', () => {
+    it('returns categories with at least 5 items', async () => {
+      const items: Item[] = [];
+      // "big" category has 6 items (≥5 → should be included)
+      for (let i = 0; i < 6; i++) {
+        items.push({ id: `big-${i}`, displayName: `Big ${i}`, imageUrl: '', category: 'big' });
+      }
+      // "small" category has 3 items (<5 → should be excluded)
+      for (let i = 0; i < 3; i++) {
+        items.push({ id: `small-${i}`, displayName: `Small ${i}`, imageUrl: '', category: 'small' });
+      }
+      const itemStore = new ItemStore(items);
+      const app = buildAppWithItemStore(lobbyManager, itemStore);
+
+      const res = await request(app).get('/api/themes');
+      expect(res.status).toBe(200);
+      expect(res.body.themes).toContain('big');
+      expect(res.body.themes).not.toContain('small');
+    });
+
+    it('does not return categories with fewer than 5 items', async () => {
+      const items: Item[] = [];
+      // Only categories with <5 items
+      for (let i = 0; i < 4; i++) {
+        items.push({ id: `a-${i}`, displayName: `A ${i}`, imageUrl: '', category: 'catA' });
+      }
+      for (let i = 0; i < 2; i++) {
+        items.push({ id: `b-${i}`, displayName: `B ${i}`, imageUrl: '', category: 'catB' });
+      }
+      const itemStore = new ItemStore(items);
+      const app = buildAppWithItemStore(lobbyManager, itemStore);
+
+      const res = await request(app).get('/api/themes');
+      expect(res.status).toBe(200);
+      expect(res.body.themes).toEqual([]);
     });
   });
 });

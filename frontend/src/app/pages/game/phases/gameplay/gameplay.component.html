@@ -13,6 +13,13 @@
     </div>
   </header>
 
+  @if (categoryName()) {
+    <div class="gameplay__category">
+      <span class="gameplay__category-label">{{ 'gameplay.category' | translate }}</span>
+      <span class="gameplay__category-name">{{ 'categories.' + categoryName() | translate }}</span>
+    </div>
+  }
+
   @if (gameState.isSpectator()) {
     <app-banner variant="warning" icon="👁️" [text]="'gameplay.spectating' | translate" />
 

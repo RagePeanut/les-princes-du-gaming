@@ -1,0 +1,102 @@
+<div class="round-result">
+  <header class="round-result__header">
+    <h1 class="round-result__title">
+      {{ 'tierlist.roundResult.title' | translate:{ round: gameState.currentRound() } }}
+    </h1>
+  </header>
+
+  <!-- Item landing in its tier -->
+  @if (gameState.roundItem(); as item) {
+    <div class="round-result__item-reveal">
+      <div class="round-result__item-card">
+        <img class="round-result__item-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+        <span class="round-result__item-name">{{ 'items.' + item.id | translate }}</span>
+      </div>
+      <div class="round-result__arrow">→</div>
+      <div class="round-result__final-tier" [style.background]="finalTierColor()">
+        {{ gameState.roundFinalTier() }}
+      </div>
+    </div>
+    <p class="round-result__average">
+      {{ 'tierlist.roundResult.average' | translate:{ value: gameState.roundAverageValue() } }}
+    </p>
+  }
+
+  <!-- Tier list with player votes -->
+  <div class="round-result__tierlist">
+    @for (tier of tiers; track tier.name) {
+      <div class="tier-row" [class.tier-row--final]="tier.name === gameState.roundFinalTier()">
+        <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
+        <div class="tier-row__content" [style.border-color]="tier.color">
+          <!-- Item on the left -->
+          @if (tier.name === gameState.roundFinalTier() && gameState.roundItem(); as item) {
+            <span class="tier-row__result-item">{{ 'items.' + item.id | translate }}</span>
+          }
+          <!-- Spacer pushes avatars to the right -->
+          <span class="tier-row__spacer"></span>
+          <!-- Player avatars on the far right -->
+          @for (vote of getVotesForTier(tier.name); track vote.playerId) {
+            <div class="tier-row__voter">
+              <app-player-avatar
+                size="sm"
+                [src]="getAvatar(vote.playerId)"
+                [alt]="vote.username + ' avatar'"
+              />
+              <span class="tier-row__voter-name">{{ vote.username }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="round-result__scores">
+    <!-- Round scores -->
+    <app-card [title]="'tierlist.roundResult.scores' | translate">
+      <ul class="score-list">
+        @for (ps of gameState.roundScores(); track ps.playerId; let i = $index) {
+          <li class="score-list__item" [style.animation-delay]="(i * 0.1) + 's'">
+            <div class="score-list__player">
+              <app-player-avatar
+                size="sm"
+                [src]="getAvatar(ps.playerId)"
+                [alt]="ps.username + ' avatar'"
+              />
+              <span class="score-list__username">{{ ps.username }}</span>
+            </div>
+            <span class="score-list__value">+{{ ps.score }}</span>
+          </li>
+        }
+      </ul>
+    </app-card>
+
+    <!-- Leaderboard -->
+    <app-card [title]="'tierlist.roundResult.leaderboard' | translate">
+      <ol class="leaderboard">
+        @for (entry of gameState.leaderboard(); track entry.playerId; let i = $index) {
+          <li class="leaderboard__item" [style.animation-delay]="(i * 0.1) + 's'">
+            <span class="leaderboard__rank">{{ entry.rank }}</span>
+            <div class="leaderboard__player">
+              <app-player-avatar
+                size="sm"
+                [src]="getAvatar(entry.playerId)"
+                [alt]="entry.username + ' avatar'"
+              />
+              <span class="leaderboard__username">{{ entry.username }}</span>
+            </div>
+            <span class="leaderboard__score">{{ entry.totalScore }}</span>
+          </li>
+        }
+      </ol>
+    </app-card>
+  </div>
+
+  <!-- Host "Next Round" button when manual advance is configured -->
+  @if (gameState.isHost() && isManualAdvance()) {
+    <div class="round-result__next">
+      <button class="round-result__next-btn" (click)="nextRound()">
+        {{ 'tierlist.roundResult.nextRound' | translate }}
+      </button>
+    </div>
+  }
+</div>

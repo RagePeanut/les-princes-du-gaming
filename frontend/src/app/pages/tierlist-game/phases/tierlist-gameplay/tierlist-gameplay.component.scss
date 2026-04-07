@@ -1,0 +1,346 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.gameplay {
+  padding: 1.5rem 1rem 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.gameplay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.gameplay__theme {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gameplay__theme-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $text-muted;
+}
+
+.gameplay__theme-name {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: $primary;
+}
+
+.gameplay__progress {
+  font-size: 1rem;
+  font-weight: 800;
+  color: $text-dark;
+  background: color.adjust($primary-light, $lightness: 14%);
+  padding: 0.4rem 1rem;
+  border-radius: $radius-sm;
+}
+
+.gameplay__timer {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: $text-dark;
+  background: $card-bg;
+  padding: 0.4rem 0.8rem;
+  border-radius: $radius-sm;
+  box-shadow: $shadow-card;
+
+  &--urgent {
+    color: $danger;
+  }
+}
+
+.gameplay__timer-icon {
+  font-size: 1.2rem;
+}
+
+.gameplay__timer-value {
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+// Source area
+.gameplay__source {
+  text-align: center;
+  margin-bottom: 1rem;
+  min-height: 40px;
+}
+
+.gameplay__instruction {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-muted;
+  margin: 0 0 0.8rem;
+
+  &--submitted {
+    color: $success;
+  }
+}
+
+.gameplay__item-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: $card-bg;
+  border: 4px solid $primary;
+  border-radius: $radius-lg;
+  padding: 1rem 1.5rem;
+  box-shadow: $shadow-elevated;
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.gameplay__item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $radius-md;
+}
+
+.gameplay__item-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: $text-dark;
+}
+
+// Confirm button
+.gameplay__confirm {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.gameplay__confirm-btn {
+  background: $primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-md;
+  padding: 0.7rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: $shadow-card;
+  min-height: 44px;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+
+  &:active {
+    filter: brightness(0.95);
+  }
+}
+
+// Tier list
+.gameplay__tierlist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 1.5rem;
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.tier-row {
+  display: flex;
+  min-height: 52px;
+
+  &--active .tier-row__content {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+    background: color.adjust($primary-light, $lightness: 18%);
+  }
+}
+
+.tier-row__label {
+  width: 52px;
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tier-row__content {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  background: $card-bg;
+  border-left: 3px solid;
+  min-height: 52px;
+}
+
+.tier-row__placed-item {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $text-dark;
+  background: color.adjust($primary-light, $lightness: 14%);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.tier-row__current-item {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  background: $primary;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  cursor: grab;
+  user-select: none;
+  white-space: nowrap;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &--submitted {
+    background: $success;
+    cursor: default;
+  }
+}
+
+// CDK drag styles
+.cdk-drag-preview {
+  box-shadow: $shadow-elevated;
+  border-radius: $radius-lg;
+  z-index: 1000;
+  background: $card-bg;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+// Highlight tier row when item is dragged over it
+.tier-row__content.cdk-drop-list-receiving {
+  background: color.adjust($primary-light, $lightness: 12%);
+  outline: 2px dashed $primary;
+  outline-offset: -2px;
+}
+
+// Players
+.gameplay__players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.gameplay__player {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $card-bg;
+  padding: 0.4rem 0.8rem;
+  border-radius: $radius-sm;
+  box-shadow: $shadow-card;
+  min-height: 44px;
+
+  &--voted {
+    border: 2px solid $success;
+  }
+}
+
+.gameplay__player-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: $text-dark;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gameplay__player-check,
+.gameplay__player-waiting {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .gameplay {
+    padding: 1rem 0.5rem 2rem;
+  }
+
+  .gameplay__header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .gameplay__item-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .tier-row__label {
+    width: 40px;
+    min-width: 40px;
+    font-size: 1.1rem;
+  }
+
+  .tier-row {
+    min-height: 48px;
+  }
+
+  .tier-row__content {
+    min-height: 48px;
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .gameplay {
+    padding: 0.8rem 0.3rem 1.5rem;
+  }
+
+  .gameplay__item-card {
+    padding: 0.8rem 1rem;
+  }
+
+  .gameplay__item-name {
+    font-size: 0.95rem;
+  }
+
+  .gameplay__item-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .gameplay__progress {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .gameplay__timer {
+    font-size: 0.95rem;
+  }
+
+  .tier-row__placed-item {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}

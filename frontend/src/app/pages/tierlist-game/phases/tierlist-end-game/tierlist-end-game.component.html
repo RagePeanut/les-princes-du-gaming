@@ -1,0 +1,74 @@
+<div class="end-game">
+  <header class="end-game__header">
+    <h1 class="end-game__title">{{ 'tierlist.endGame.title' | translate }}</h1>
+    <app-button (clicked)="toggleView()">
+      @if (showLeaderboard()) {
+        {{ 'tierlist.endGame.hideLeaderboard' | translate }}
+      } @else {
+        {{ 'tierlist.endGame.showLeaderboard' | translate }}
+      }
+    </app-button>
+  </header>
+
+  @if (!showLeaderboard()) {
+    <!-- Full tier list -->
+    <app-card [title]="'tierlist.endGame.tierListTitle' | translate">
+      <div class="end-game__tierlist">
+        @for (tier of tiers; track tier.name) {
+          <div class="tier-row">
+            <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
+            <div class="tier-row__content" [style.border-color]="tier.color">
+              @for (item of getTierItems(tier.name); track item.id; let i = $index) {
+                <span class="tier-row__item" [style.animation-delay]="(i * 0.08) + 's'">
+                  {{ 'items.' + item.id | translate }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </app-card>
+  } @else {
+    <!-- Leaderboard -->
+    <app-card [title]="'tierlist.endGame.leaderboard' | translate">
+      <ol class="end-game__leaderboard">
+        @for (entry of sortedLeaderboard(); track entry.playerId; let i = $index) {
+          <li
+            class="end-game__lb-item"
+            [class.end-game__lb-item--winner]="isWinner(entry)"
+            [style.animation-delay]="(i * 0.12) + 's'"
+          >
+            <span class="end-game__lb-rank">
+              @if (isWinner(entry)) {
+                <span class="end-game__crown">👑</span>
+              } @else {
+                {{ entry.rank }}
+              }
+            </span>
+            <div class="end-game__lb-player">
+              <app-player-avatar
+                size="sm"
+                [src]="getAvatar(entry.playerId)"
+                [alt]="entry.username + ' avatar'"
+                [fallback]="entry.username.charAt(0).toUpperCase()"
+              />
+              <span class="end-game__lb-username">{{ entry.username }}</span>
+            </div>
+            <span class="end-game__lb-score">{{ entry.totalScore }}</span>
+          </li>
+        }
+      </ol>
+      @if (gameState.isTie()) {
+        <p class="end-game__tie-msg">{{ 'tierlist.endGame.tieMsg' | translate }}</p>
+      }
+    </app-card>
+  }
+
+  @if (showCountdown()) {
+    <div class="end-game__rematch">
+      <span class="end-game__rematch-icon">🔄</span>
+      <span class="end-game__rematch-text">{{ 'tierlist.endGame.rematchIn' | translate }}</span>
+      <span class="end-game__rematch-timer">{{ gameState.rematchCountdown() }}s</span>
+    </div>
+  }
+</div>

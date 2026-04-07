@@ -1,0 +1,34 @@
+<div class="suspense">
+  <!-- Floating item -->
+  @if (gameState.currentItem(); as item) {
+    <div class="suspense__item">
+      <img class="suspense__item-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+      <span class="suspense__item-name">{{ 'items.' + item.id | translate }}</span>
+    </div>
+  }
+
+  <!-- Drum roll indicator -->
+  <div class="suspense__indicator">
+    <span class="suspense__drum">🥁</span>
+    <h2 class="suspense__title">{{ 'tierlist.suspense.title' | translate }}</h2>
+    <div class="suspense__dots">
+      <span class="suspense__dot"></span>
+      <span class="suspense__dot"></span>
+      <span class="suspense__dot"></span>
+    </div>
+  </div>
+
+  <!-- Tier list in background -->
+  <div class="suspense__tierlist">
+    @for (tier of tiers; track tier.name) {
+      <div class="tier-row">
+        <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
+        <div class="tier-row__content" [style.border-color]="tier.color">
+          @for (placed of getTierItems(tier.name); track placed.id) {
+            <span class="tier-row__placed-item">{{ 'items.' + placed.id | translate }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,146 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.roulette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.roulette__title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: $primary;
+  margin: 0 0 2rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.roulette__viewport {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  border-radius: $radius-lg;
+  background: $card-bg;
+  box-shadow: $shadow-elevated;
+  padding: 1.5rem 0;
+}
+
+.roulette__pointer {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.8rem;
+  color: $primary;
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(124, 77, 255, 0.4));
+}
+
+.roulette__track-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.roulette__track {
+  display: flex;
+  gap: 1rem;
+  will-change: transform;
+  padding: 0.5rem 0;
+}
+
+.roulette__item {
+  flex-shrink: 0;
+  min-width: 160px;
+  padding: 1rem 1.5rem;
+  background: color.adjust($primary-light, $lightness: 14%);
+  border: 3px solid transparent;
+  border-radius: $radius-md;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: $text-dark;
+  text-align: center;
+  transition: all 0.3s;
+
+  &--selected {
+    background: $primary;
+    color: #fff;
+    border-color: $primary-dark;
+    transform: scale(1.1);
+    box-shadow: $shadow-elevated;
+  }
+}
+
+.roulette__result {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.roulette__result-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-muted;
+}
+
+.roulette__result-theme {
+  font-size: 2rem;
+  font-weight: 900;
+  color: $primary;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 700px) {
+  .roulette__title {
+    font-size: 1.5rem;
+  }
+
+  .roulette__item {
+    min-width: 120px;
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .roulette {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .roulette__title {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .roulette__item {
+    min-width: 100px;
+    font-size: 0.85rem;
+    padding: 0.7rem 0.8rem;
+  }
+
+  .roulette__result-theme {
+    font-size: 1.5rem;
+  }
+}

@@ -91,13 +91,13 @@ describe('buildFullConfig', () => {
   it('uses provided values and fills defaults for missing', () => {
     const config = buildFullConfig({ rounds: 10 });
     expect(config.rounds).toBe(10);
-    expect(config.timerSeconds).toBe(15);
-    expect(config.mode).toBe('random');
+    expect(config.timerSeconds).toBe(30);
+    expect(config.mode).toBe('category');
   });
 
-  it('defaults timerSeconds to 15 when omitted', () => {
+  it('defaults timerSeconds to 30 when omitted', () => {
     const config = buildFullConfig({ rounds: 3, mode: 'category' });
-    expect(config.timerSeconds).toBe(15);
+    expect(config.timerSeconds).toBe(30);
   });
 });
 
@@ -323,7 +323,7 @@ describe('LobbyManager', () => {
       const host = manager.joinLobby(lobby.code, 'Alice');
       const updated = manager.updateConfig(lobby.code, host.id, { rounds: 10 });
       expect(updated.rounds).toBe(10);
-      expect(updated.timerSeconds).toBe(15); // unchanged
+      expect(updated.timerSeconds).toBe(30); // unchanged
     });
 
     it('throws when non-host tries to update', () => {

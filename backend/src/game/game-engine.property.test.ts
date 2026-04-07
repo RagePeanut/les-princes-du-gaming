@@ -39,6 +39,8 @@ function makeLobby(players: Map<string, Player>, overrides: Partial<Lobby> = {})
     config: { rounds: 1, timerSeconds: 10, timeBetweenRounds: -1, mode: 'random' },
     state: 'waiting',
     gameSession: null,
+    gameType: 'ranking',
+    tierListSession: null,
     previousWinnerId: null,
     createdAt: Date.now(),
     nextJoinOrder: players.size,

@@ -72,7 +72,7 @@ const gameEngine = new GameEngine(itemStore, callbacks);
 
 const app = express();
 app.use(express.json());
-app.use(createRouter(lobbyManager));
+app.use(createRouter(lobbyManager, itemStore));
 
 // ─── Serve Angular frontend in production ─────────────────────────────
 const frontendDist = path.resolve(process.cwd(), 'frontend', 'dist', 'frontend', 'browser');
@@ -84,7 +84,7 @@ app.get(/^\/(?!api).*/, (_req, res) => {
 // ─── HTTP + WebSocket server ──────────────────────────────────────────
 
 const server = http.createServer(app);
-wsServer = new GameWebSocketServer(server, lobbyManager, gameEngine);
+wsServer = new GameWebSocketServer(server, lobbyManager, gameEngine, itemStore);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

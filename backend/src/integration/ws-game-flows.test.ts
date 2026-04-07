@@ -89,7 +89,7 @@ function createTestServer() {
   app.use(createRouter(lobbyManager));
 
   const server = http.createServer(app);
-  wsServer = new GameWebSocketServer(server, lobbyManager, gameEngine);
+  wsServer = new GameWebSocketServer(server, lobbyManager, gameEngine, itemStore);
 
   return { server, lobbyManager, gameEngine, wsServer, app };
 }
@@ -563,5 +563,301 @@ describe('WebSocket game flows (integration)', () => {
 
     // Charlie should no longer be a spectator
     expect(charlie!.isSpectator).toBe(false);
+  });
+});
+
+
+// ─── Tier List Integration Tests ────────────────────────────────────────────
+
+describe('Tier List WebSocket game flows (integration)', () => {
+  let server: http.Server;
+  let wsServer: GameWebSocketServer;
+  let lobbyManager: LobbyManager;
+  let port: number;
+  let clients: WebSocket[] = [];
+
+  beforeEach(async () => {
+    jest.useFakeTimers({ advanceTimers: true });
+    const ctx = createTestServer();
+    server = ctx.server;
+    wsServer = ctx.wsServer;
+    lobbyManager = ctx.lobbyManager;
+    port = await listen(server);
+    clients = [];
+  });
+
+  afterEach(async () => {
+    for (const ws of clients) {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    }
+    clients = [];
+    await closeServer(server, wsServer);
+    jest.useRealTimers();
+  });
+
+  async function createAndConnect(): Promise<WebSocket> {
+    const ws = await connectClient(port);
+    clients.push(ws);
+    return ws;
+  }
+
+  async function joinLobby(ws: WebSocket, lobbyCode: string, username: string): Promise<string> {
+    const avatarPromise = waitForMessage(ws, SERVER_MSG.AVATAR_ASSIGNED);
+    send(ws, CLIENT_MSG.JOIN_LOBBY, { lobbyCode, username });
+    const avatarMsg = await avatarPromise;
+    return (avatarMsg.payload as any).playerId;
+  }
+
+  // ─── Test: Full tier list game flow ─────────────────────────────────
+
+  test('full tier list game flow: roulette → vote → suspense → result → game end', async () => {
+    const lobby = lobbyManager.createLobby({ timerSeconds: 15, timeBetweenRounds: 0 }, 'tierlist');
+    const code = lobby.code;
+
+    const ws1 = await createAndConnect();
+    const ws2 = await createAndConnect();
+
+    await joinLobby(ws1, code, 'Alice');
+    await drainMessages(ws1);
+    await joinLobby(ws2, code, 'Bob');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+
+    // Host starts game → roulette
+    const rouletteStartP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START);
+    const rouletteStartP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_ROULETTE_START);
+    send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
+
+    const [rs1, rs2] = await Promise.all([rouletteStartP1, rouletteStartP2]);
+    expect((rs1.payload as any).themes.length).toBeGreaterThan(0);
+    expect((rs2.payload as any).themes.length).toBeGreaterThan(0);
+
+    // Set up listeners BEFORE advancing timers to avoid timeout race
+    const rouletteResultP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_RESULT, 10000);
+    const rouletteResultP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_ROULETTE_RESULT, 10000);
+    // Advance 5s for roulette timer
+    jest.advanceTimersByTime(5000);
+
+    const [rr1, rr2] = await Promise.all([rouletteResultP1, rouletteResultP2]);
+    expect(typeof (rr1.payload as any).theme).toBe('string');
+    expect((rr1.payload as any).items.length).toBeGreaterThanOrEqual(5);
+    expect((rr2.payload as any).items.length).toBeGreaterThanOrEqual(5);
+
+    const totalItems = (rr1.payload as any).items.length;
+
+    // Set up listeners BEFORE advancing timers
+    const roundStartP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START, 10000);
+    const roundStartP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_ROUND_START, 10000);
+    // Advance 1s for roulette-to-round transition
+    jest.advanceTimersByTime(1000);
+
+    const [rsrt1, rsrt2] = await Promise.all([roundStartP1, roundStartP2]);
+    expect((rsrt1.payload as any).roundIndex).toBe(0);
+    expect((rsrt1.payload as any).totalItems).toBe(totalItems);
+    expect((rsrt1.payload as any).item).toBeDefined();
+    expect((rsrt2.payload as any).roundIndex).toBe(0);
+
+    // Play through ALL rounds
+    for (let round = 0; round < totalItems; round++) {
+      const isLastRound = round === totalItems - 1;
+
+      // Both players submit tier votes
+      const suspenseP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
+      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'A' });
+      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
+
+      // Early completion triggers suspense
+      await suspenseP1;
+
+      // Set up ALL listeners BEFORE advancing timers
+      // On the last round, TIERLIST_GAME_ENDED is sent right after TIERLIST_ROUND_RESULT
+      const roundResultP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_RESULT, 10000);
+      const gameEndP1 = isLastRound ? waitForMessage(ws1, SERVER_MSG.TIERLIST_GAME_ENDED, 10000) : null;
+      const gameEndP2 = isLastRound ? waitForMessage(ws2, SERVER_MSG.TIERLIST_GAME_ENDED, 10000) : null;
+
+      jest.advanceTimersByTime(3000);
+
+      const result = await roundResultP1;
+      expect((result.payload as any).roundIndex).toBe(round);
+      expect((result.payload as any).finalTier).toBeDefined();
+      expect((result.payload as any).votes).toHaveLength(2);
+      expect((result.payload as any).scores).toHaveLength(2);
+      expect((result.payload as any).leaderboard.length).toBeGreaterThanOrEqual(2);
+
+      if (isLastRound) {
+        const [ge1, ge2] = await Promise.all([gameEndP1!, gameEndP2!]);
+        expect((ge1.payload as any).tierList).toBeDefined();
+        expect((ge1.payload as any).tierList.tiers).toHaveLength(6);
+        expect((ge1.payload as any).leaderboard.length).toBeGreaterThanOrEqual(2);
+        expect(typeof (ge1.payload as any).winnerId).toBe('string');
+        expect(typeof (ge1.payload as any).isTie).toBe('boolean');
+        expect((ge2.payload as any).tierList).toBeDefined();
+      } else {
+        // Not last round → wait for next round start (timeBetweenRounds=0 → 1s interval tick)
+        const nextRoundP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START, 10000);
+        jest.advanceTimersByTime(1000);
+        await nextRoundP1;
+      }
+    }
+
+    expect(lobby.state).toBe('rematch_countdown');
+  }, 30000);
+
+  // ─── Test: Vote status broadcast without tier ───────────────────────
+
+  test('vote status broadcast contains only playerId and hasVoted, no tier', async () => {
+    const lobby = lobbyManager.createLobby({ timerSeconds: 30, timeBetweenRounds: 0 }, 'tierlist');
+    const code = lobby.code;
+
+    const ws1 = await createAndConnect();
+    const ws2 = await createAndConnect();
+
+    const p1Id = await joinLobby(ws1, code, 'Alice');
+    await drainMessages(ws1);
+    await joinLobby(ws2, code, 'Bob');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+
+    // Start game
+    send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START);
+
+    // Advance through roulette (5s) + transition (1s)
+    jest.advanceTimersByTime(5000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_RESULT);
+    jest.advanceTimersByTime(1000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
+    await drainMessages(ws2);
+
+    // Player 1 votes — player 2 should receive vote status
+    const voteStatusP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_VOTE_STATUS);
+    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'S' });
+
+    const vs = await voteStatusP2;
+    const payload = vs.payload as any;
+
+    // Must contain playerId and hasVoted
+    expect(payload.playerId).toBe(p1Id);
+    expect(payload.hasVoted).toBe(true);
+
+    // Must NOT contain tier information
+    expect(payload.tier).toBeUndefined();
+    expect(payload.votedTier).toBeUndefined();
+    expect(payload.vote).toBeUndefined();
+  });
+
+  // ─── Test: Early completion via WebSocket ───────────────────────────
+
+  test('early completion: all players vote before timer → round ends immediately', async () => {
+    const lobby = lobbyManager.createLobby({ timerSeconds: 60, timeBetweenRounds: 0 }, 'tierlist');
+    const code = lobby.code;
+
+    const ws1 = await createAndConnect();
+    const ws2 = await createAndConnect();
+
+    await joinLobby(ws1, code, 'Alice');
+    await drainMessages(ws1);
+    await joinLobby(ws2, code, 'Bob');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+
+    // Start game and advance through roulette
+    send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START);
+    jest.advanceTimersByTime(5000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_RESULT);
+    jest.advanceTimersByTime(1000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
+    await drainMessages(ws2);
+
+    // Both players vote — should trigger early completion (suspense immediately)
+    const suspenseP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
+    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A' });
+    send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A' });
+
+    // Suspense should start without waiting for the 60s timer
+    const suspense = await suspenseP1;
+    expect((suspense.payload as any).roundIndex).toBe(0);
+    expect(lobby.state).toBe('suspense');
+
+    // Advance 3s for suspense → round result
+    const roundResultP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_RESULT);
+    jest.advanceTimersByTime(3000);
+
+    const result = await roundResultP1;
+    expect((result.payload as any).roundIndex).toBe(0);
+    // Both voted A (value 5), so average = 5, tier = A
+    expect((result.payload as any).finalTier).toBe('A');
+    expect((result.payload as any).averageValue).toBe(5);
+  });
+
+  // ─── Test: Rematch after 30 seconds ─────────────────────────────────
+
+  test('rematch auto-starts after 30-second countdown following game end', async () => {
+    const lobby = lobbyManager.createLobby({ timerSeconds: 15, timeBetweenRounds: 0 }, 'tierlist');
+    const code = lobby.code;
+
+    const ws1 = await createAndConnect();
+    const ws2 = await createAndConnect();
+
+    await joinLobby(ws1, code, 'Alice');
+    await drainMessages(ws1);
+    await joinLobby(ws2, code, 'Bob');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+
+    // Start game and advance through roulette
+    send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START);
+    jest.advanceTimersByTime(5000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_RESULT);
+    jest.advanceTimersByTime(1000);
+    await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
+    await drainMessages(ws2);
+
+    const totalItems = lobby.tierListSession!.totalRounds;
+
+    // Play through all rounds quickly
+    for (let round = 0; round < totalItems; round++) {
+      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
+      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
+
+      // Wait for suspense
+      await waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
+
+      // Advance 3s for suspense
+      if (round < totalItems - 1) {
+        const nextRound = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
+        jest.advanceTimersByTime(3000); // suspense
+        await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_RESULT);
+        jest.advanceTimersByTime(1000); // between rounds
+        await nextRound;
+      }
+    }
+
+    // Last round: advance suspense → game end
+    const gameEndP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_GAME_ENDED);
+    jest.advanceTimersByTime(3000);
+    await gameEndP1;
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+
+    expect(lobby.state).toBe('rematch_countdown');
+
+    // Advance 30 seconds for rematch countdown
+    const newRouletteP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START, 35000);
+    const newRouletteP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_ROULETTE_START, 35000);
+    jest.advanceTimersByTime(30000);
+
+    const [nr1, nr2] = await Promise.all([newRouletteP1, newRouletteP2]);
+    expect((nr1.payload as any).themes.length).toBeGreaterThan(0);
+    expect((nr2.payload as any).themes.length).toBeGreaterThan(0);
+
+    // Lobby should be in roulette state for the new game
+    expect(lobby.state).toBe('roulette');
+    // A new session should have been created
+    expect(lobby.tierListSession).toBeDefined();
   });
 });

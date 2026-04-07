@@ -11,4 +11,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/game/game.component').then((m) => m.GameComponent),
   },
+  {
+    path: 'game/tierlist/:code',
+    loadComponent: () =>
+      import('./pages/tierlist-game/tierlist-game.component').then(
+        (m) => m.TierlistGameComponent
+      ),
+  },
 ];

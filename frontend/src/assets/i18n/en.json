@@ -11,7 +11,9 @@
 		"gartic-phone": "The telephone game meets drawing",
 		"bombparty": "Explosive word game",
 		"dialed-gg": "How well can you remember colors?",
-		"popsauce": "Blind test for your eyes"
+		"popsauce": "Blind test for your eyes",
+		"skribbl": "Online multiplayer drawing and guessing game",
+		"dialed-sound": "How well can you remember sounds?"
 	}
   },
   "join": {
@@ -46,6 +48,7 @@
   },
   "gameplay": {
     "round": "Round {{current}} of {{total}}",
+    "category": "Category:",
     "spectating": "Spectating",
     "submittedBanner": "✅",
     "submittedText": "Submitted!",
@@ -87,7 +90,61 @@
     "createLobby": "Failed to create lobby. Please try again.",
     "lobbyNotFound": "This game lobby does not exist or has expired."
   },
+  "tierlist": {
+    "lobby": {
+      "title": "🎯 Tier List Game",
+      "timer": "Vote timer:",
+      "mode": "Mode:",
+      "categoryMode": "📂 Category",
+      "randomMode": "🎲 Random",
+      "startGame": "🚀 Start Game",
+      "startHint": "Need at least 2 players to start"
+    },
+    "roulette": {
+      "title": "🎰 Selecting theme...",
+      "selected": "Theme selected!"
+    },
+    "gameplay": {
+      "theme": "Theme:",
+      "item": "Item {{current}}/{{total}}",
+      "instruction": "Tap a tier to place the item",
+      "voted": "✅ Vote submitted!",
+      "confirm": "✅ Confirm vote",
+      "waiting": "Waiting for other players...",
+      "spectating": "Spectating",
+      "timerExpired": "Time's up!"
+    },
+    "suspense": {
+      "title": "🥁 Suspense...",
+      "revealing": "Revealing result..."
+    },
+    "roundResult": {
+      "title": "📊 Result — Item {{round}}",
+      "finalTier": "Final tier:",
+      "average": "Average: {{value}}",
+      "playerVotes": "Player Votes",
+      "scores": "Round Scores",
+      "leaderboard": "🏆 Leaderboard",
+      "nextRound": "➡️ Next Round"
+    },
+    "endGame": {
+      "title": "🏆 Game Over!",
+      "tierListTitle": "🎯 Final Tier List",
+      "showLeaderboard": "📊 Show Leaderboard",
+      "hideLeaderboard": "🎯 Show Tier List",
+      "leaderboard": "Final Leaderboard",
+      "tieMsg": "🤝 Co-Winners!",
+      "rematchIn": "Rematch in"
+    }
+  },
   "loading": "Loading game state...",
+  "categories": {
+    "pasta": "Pasta",
+    "pizza-toppings": "Pizza Toppings",
+    "animals": "Animals",
+    "movies": "Movies",
+    "sports": "Sports"
+  },
   "items": {
     "pasta-spaghetti": "Spaghetti",
     "pasta-penne": "Penne",

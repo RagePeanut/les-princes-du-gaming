@@ -1,0 +1,112 @@
+<div class="lobby">
+  <header class="lobby__header">
+    <h1 class="lobby__title">{{ 'tierlist.lobby.title' | translate }}</h1>
+    <div class="lobby__share">
+      <span class="lobby__share-label">{{ 'lobby.shareLabel' | translate }}</span>
+      <div class="lobby__share-row">
+        <input
+          class="lobby__share-input"
+          type="text"
+          [value]="shareableLink()"
+          readonly
+          [attr.aria-label]="'lobby.shareLabel' | translate"
+        />
+        <app-button (clicked)="copyLink()">
+          @if (linkCopied()) {
+            {{ 'lobby.copied' | translate }}
+          } @else {
+            {{ 'lobby.copyBtn' | translate }}
+          }
+        </app-button>
+      </div>
+    </div>
+  </header>
+
+  <div class="lobby__content">
+    <!-- Settings panel -->
+    <app-card [title]="'lobby.settingsTitle' | translate">
+      <div class="setting">
+        <label class="setting__label" for="tl-timer-slider">
+          {{ 'tierlist.lobby.timer' | translate }}
+          <strong>{{ timerValue() }}s</strong>
+        </label>
+        <input
+          id="tl-timer-slider"
+          class="setting__slider"
+          type="range"
+          min="5"
+          max="120"
+          [value]="timerValue()"
+          [disabled]="!gameState.isHost()"
+          (input)="updateTimer($event)"
+        />
+        <div class="setting__range"><span>5s</span><span>120s</span></div>
+      </div>
+
+      <div class="setting">
+        <span class="setting__label">{{ 'tierlist.lobby.mode' | translate }}</span>
+        <div class="setting__toggle">
+          <button
+            class="setting__toggle-btn"
+            [class.setting__toggle-btn--active]="gameState.config()?.mode === 'category'"
+            [disabled]="!gameState.isHost()"
+            (click)="updateMode('category')"
+          >
+            {{ 'tierlist.lobby.categoryMode' | translate }}
+          </button>
+          <button
+            class="setting__toggle-btn"
+            [class.setting__toggle-btn--active]="gameState.config()?.mode === 'random'"
+            [disabled]="!gameState.isHost()"
+            (click)="updateMode('random')"
+          >
+            {{ 'tierlist.lobby.randomMode' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (gameState.isHost()) {
+        <app-button
+          variant="success"
+          [fullWidth]="true"
+          [disabled]="gameState.players().length < 2"
+          (clicked)="startGame()"
+        >
+          {{ 'tierlist.lobby.startGame' | translate }}
+        </app-button>
+        @if (gameState.players().length < 2) {
+          <p class="lobby__start-hint">{{ 'tierlist.lobby.startHint' | translate }}</p>
+        }
+      }
+    </app-card>
+
+    <!-- Player list -->
+    <app-card [title]="'lobby.playersTitle' | translate:{ count: gameState.players().length }">
+      <ul class="player-list">
+        @for (player of gameState.players(); track player.id) {
+          <li class="player-list__item">
+            <app-player-avatar
+              [src]="getAvatar(player.id)"
+              [alt]="player.username + ' avatar'"
+              [showCrown]="!!player.hasCrown"
+            />
+            <span class="player-list__name">{{ player.username }}</span>
+            @if (player.isHost) {
+              <span class="player-list__badge player-list__badge--host">{{ 'lobby.hostBadge' | translate }}</span>
+            }
+            @if (player.isSpectator) {
+              <span class="player-list__badge player-list__badge--spectator">{{ 'lobby.spectatorBadge' | translate }}</span>
+            }
+            @if (!player.isConnected) {
+              <span class="player-list__badge player-list__badge--disconnected">{{ 'lobby.disconnectedBadge' | translate }}</span>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (!gameState.isHost()) {
+        <p class="lobby__waiting-msg">{{ 'lobby.waitingForHost' | translate }}</p>
+      }
+    </app-card>
+  </div>
+</div>

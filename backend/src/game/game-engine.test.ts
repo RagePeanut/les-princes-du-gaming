@@ -42,6 +42,8 @@ function makeLobby(overrides: Partial<Lobby> = {}): Lobby {
     config: { rounds: 3, timerSeconds: 15, timeBetweenRounds: -1, mode: 'random' },
     state: 'waiting',
     gameSession: null,
+    gameType: 'ranking',
+    tierListSession: null,
     previousWinnerId: null,
     createdAt: Date.now(),
     nextJoinOrder: 3,

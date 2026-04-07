@@ -1,7 +1,8 @@
 import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import type { ClientMessage, ServerMessage } from '@shared/ws-messages';
+import type { ClientMessage, ServerMessage, SubmitTierVotePayload } from '@shared/ws-messages';
+import { CLIENT_MSG } from '@shared/ws-messages';
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
@@ -48,6 +49,13 @@ export class WebSocketService implements OnDestroy {
       filter((msg) => msg.type === type),
       map((msg) => msg.payload as T)
     );
+  }
+
+  submitTierVote(lobbyCode: string, roundIndex: number, tier: string, confirmed: boolean = false): void {
+    this.send({
+      type: CLIENT_MSG.SUBMIT_TIER_VOTE,
+      payload: { lobbyCode, roundIndex, tier, confirmed } as SubmitTierVotePayload,
+    });
   }
 
   ngOnDestroy(): void {

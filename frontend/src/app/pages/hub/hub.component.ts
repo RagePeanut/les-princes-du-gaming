@@ -43,8 +43,10 @@ export class HubComponent implements OnInit {
 
   protected async onInternalCardClick(game: GameCard): Promise<void> {
     try {
-      const result = await this.lobbyService.createLobby({});
-      await this.router.navigate(['/game/ranking', result.lobbyCode]);
+      const gameType: 'ranking' | 'tierlist' = game.id === 'tierlist' ? 'tierlist' : 'ranking';
+      const result = await this.lobbyService.createLobby({}, gameType);
+      const routePath = game.routePath ?? '/game/ranking';
+      await this.router.navigate([routePath, result.lobbyCode]);
     } catch {
       this.error.set(this.translate.instant('errors.createLobby'));
     }

@@ -1,4 +1,4 @@
-import { Component, inject, effect, signal, OnDestroy } from '@angular/core';
+import { Component, inject, effect, signal, computed, OnDestroy } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -27,6 +27,15 @@ export class GameplayComponent implements OnDestroy {
 
   readonly submitted = signal(false);
   readonly rankedItems = signal<Item[]>([]);
+
+  readonly categoryName = computed(() => {
+    const mode = this.gameState.config()?.mode;
+    const items = this.gameState.items();
+    if (mode === 'category' && items.length > 0) {
+      return items[0].category;
+    }
+    return null;
+  });
 
   private autoSubmitted = false;
 

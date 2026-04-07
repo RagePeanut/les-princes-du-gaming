@@ -1,0 +1,26 @@
+<div class="roulette">
+  <h1 class="roulette__title">{{ 'tierlist.roulette.title' | translate }}</h1>
+
+  <div class="roulette__viewport">
+    <div class="roulette__pointer">▼</div>
+    <div class="roulette__track-wrapper">
+      <div class="roulette__track" #track>
+        @for (theme of themes(); track $index) {
+          <div
+            class="roulette__item"
+            [class.roulette__item--selected]="!spinning() && selectedTheme() && theme === selectedTheme()"
+          >
+            {{ 'categories.' + theme | translate }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (!spinning() && selectedTheme()) {
+    <div class="roulette__result">
+      <span class="roulette__result-label">{{ 'tierlist.roulette.selected' | translate }}</span>
+      <span class="roulette__result-theme">{{ 'categories.' + selectedTheme() | translate }}</span>
+    </div>
+  }
+</div>

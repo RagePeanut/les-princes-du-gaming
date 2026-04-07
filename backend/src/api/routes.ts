@@ -4,8 +4,9 @@
 // GET /api/games — game metadata list
 
 import { Router, Request, Response } from 'express';
-import { LobbyManager, validateGameConfig, buildFullConfig } from '../lobby/lobby-manager';
+import { LobbyManager, validateGameConfig } from '../lobby/lobby-manager';
 import { GameCard } from '../../../shared/types';
+import { ItemStore } from '../items/item-store';
 
 const INTERNAL_GAMES: GameCard[] = [
   {
@@ -14,6 +15,13 @@ const INTERNAL_GAMES: GameCard[] = [
     imageUrl: '/images/ranking-game.png',
     isExternal: false,
     routePath: '/game/ranking',
+  },
+  {
+    id: 'tierlist',
+    title: 'Tier List Game',
+    imageUrl: '/images/tierlist-game.png',
+    isExternal: false,
+    routePath: '/game/tierlist',
   },
 ];
 
@@ -46,25 +54,43 @@ const EXTERNAL_GAMES: GameCard[] = [
     isExternal: true,
     externalUrl: 'https://jklm.fun',
   },
+  {
+    id: 'skribbl',
+    title: 'skribbl.io',
+    imageUrl: 'https://skribbl.io/img/thumbnail.png',
+    isExternal: true,
+    externalUrl: 'https://skribbl.io',
+  },
+  {
+    id: 'dialed-sound',
+    title: 'Dialed.gg Sound',
+    imageUrl: 'https://dialed.gg/og-default.png',
+    isExternal: true,
+    externalUrl: 'https://dialed.gg/sound',
+  },
 ];
 
-export function createRouter(lobbyManager: LobbyManager): Router {
+export function createRouter(lobbyManager: LobbyManager, itemStore?: ItemStore): Router {
   const router = Router();
 
   // POST /api/lobbies — create a new lobby
   router.post('/api/lobbies', (req: Request, res: Response) => {
     try {
       const config = req.body || {};
+      const gameType: 'ranking' | 'tierlist' = req.body.gameType === 'tierlist' ? 'tierlist' : 'ranking';
       const validation = validateGameConfig(config);
       if (!validation.valid) {
         res.status(400).json({ error: validation.errors.join('; ') });
         return;
       }
 
-      const lobby = lobbyManager.createLobby(config);
+      const lobby = lobbyManager.createLobby(config, gameType);
+      const joinUrl = gameType === 'tierlist'
+        ? `/game/tierlist/${lobby.code}`
+        : `/game/ranking/${lobby.code}`;
       res.status(201).json({
         lobbyCode: lobby.code,
-        joinUrl: `/game/ranking/${lobby.code}`,
+        joinUrl,
       });
     } catch (err: any) {
       res.status(500).json({ error: 'Internal server error' });
@@ -86,6 +112,23 @@ export function createRouter(lobbyManager: LobbyManager): Router {
         playerCount: lobby.players.size,
         config: lobby.config,
       });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // GET /api/themes — available themes (categories with ≥5 items)
+  router.get('/api/themes', (_req: Request, res: Response) => {
+    try {
+      if (!itemStore) {
+        res.status(500).json({ error: 'ItemStore not available' });
+        return;
+      }
+      const categories = itemStore.getCategories();
+      const themes = categories.filter(
+        (cat) => itemStore.getItemsByCategory(cat).length >= 5,
+      );
+      res.json({ themes });
     } catch (err: any) {
       res.status(500).json({ error: 'Internal server error' });
     }

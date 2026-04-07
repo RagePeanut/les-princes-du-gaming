@@ -1,0 +1,179 @@
+@use 'sass:color';
+@use 'theme' as *;
+
+.suspense {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// Floating item
+.suspense__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  animation: levitate 1.5s ease-in-out infinite;
+}
+
+@keyframes levitate {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-16px) rotate(2deg); }
+}
+
+.suspense__item-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: $radius-lg;
+  border: 4px solid $primary;
+  box-shadow: $shadow-elevated;
+}
+
+.suspense__item-name {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: $primary;
+}
+
+// Indicator
+.suspense__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.suspense__drum {
+  font-size: 2.5rem;
+  animation: shake 0.3s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.suspense__title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: $text-dark;
+  margin: 0;
+}
+
+.suspense__dots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.suspense__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $primary;
+  animation: dotBounce 1s ease-in-out infinite;
+
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes dotBounce {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+// Tier list (dimmed background)
+.suspense__tierlist {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  opacity: 0.5;
+}
+
+.tier-row {
+  display: flex;
+  min-height: 44px;
+}
+
+.tier-row__label {
+  width: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tier-row__content {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  background: $card-bg;
+  border-left: 3px solid;
+  min-height: 44px;
+}
+
+.tier-row__placed-item {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $text-dark;
+  background: color.adjust($primary-light, $lightness: 14%);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .suspense__item-image {
+    width: 70px;
+    height: 70px;
+  }
+
+  .suspense__title {
+    font-size: 1.2rem;
+  }
+
+  .tier-row__label {
+    width: 40px;
+    min-width: 40px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .suspense {
+    padding: 1.5rem 0.5rem 2rem;
+  }
+
+  .suspense__item-image {
+    width: 56px;
+    height: 56px;
+  }
+
+  .suspense__item-name {
+    font-size: 1rem;
+  }
+
+  .suspense__drum {
+    font-size: 2rem;
+  }
+
+  .suspense__title {
+    font-size: 1rem;
+  }
+}

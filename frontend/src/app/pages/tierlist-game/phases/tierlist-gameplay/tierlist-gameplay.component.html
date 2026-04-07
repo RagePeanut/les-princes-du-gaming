@@ -1,0 +1,109 @@
+<div class="gameplay" cdkDropListGroup>
+  <!-- Header: theme, progress, timer -->
+  <header class="gameplay__header">
+    <div class="gameplay__theme">
+      <span class="gameplay__theme-label">{{ 'tierlist.gameplay.theme' | translate }}</span>
+      <span class="gameplay__theme-name">{{ 'categories.' + gameState.selectedTheme() | translate }}</span>
+    </div>
+    <div class="gameplay__progress">
+      {{ 'tierlist.gameplay.item' | translate:{ current: gameState.currentRound(), total: gameState.totalRounds() } }}
+    </div>
+    <div class="gameplay__timer" [class.gameplay__timer--urgent]="gameState.timerSeconds() <= 5">
+      <span class="gameplay__timer-icon">⏱️</span>
+      <span class="gameplay__timer-value">{{ gameState.timerSeconds() }}s</span>
+    </div>
+  </header>
+
+  <!-- Source area: item lives here until dragged into a tier -->
+  <div
+    class="gameplay__source"
+    cdkDropList
+    [cdkDropListData]="'source'"
+    (cdkDropListDropped)="onDropInSource($any($event))"
+    [cdkDropListDisabled]="confirmed() || gameState.isSpectator()"
+    cdkDropListSortingDisabled
+  >
+    @if (!confirmed()) {
+      <p class="gameplay__instruction">
+        {{ 'tierlist.gameplay.instruction' | translate }}
+      </p>
+    } @else {
+      <p class="gameplay__instruction gameplay__instruction--submitted">{{ 'tierlist.gameplay.voted' | translate }}</p>
+    }
+
+    @if (gameState.currentItem(); as item) {
+      @if (!placedTier() && !confirmed()) {
+        <div class="gameplay__item-card" cdkDrag [cdkDragDisabled]="confirmed() || gameState.isSpectator()">
+          <img class="gameplay__item-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+          <span class="gameplay__item-name">{{ 'items.' + item.id | translate }}</span>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Confirm button -->
+  @if (placedTier() && !confirmed() && !gameState.isSpectator()) {
+    <div class="gameplay__confirm">
+      <button class="gameplay__confirm-btn" (click)="confirmVote()">
+        {{ 'tierlist.gameplay.confirm' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Tier list grid -->
+  <div class="gameplay__tierlist">
+    @for (tier of tiers; track tier.name) {
+      <div class="tier-row" [class.tier-row--active]="placedTier() === tier.name">
+        <div class="tier-row__label" [style.background]="tier.color">
+          {{ tier.name }}
+        </div>
+        <div
+          class="tier-row__content"
+          [style.border-color]="tier.color"
+          cdkDropList
+          [cdkDropListData]="tier.name"
+          (cdkDropListDropped)="onDropInTier($any($event), tier.name)"
+          [cdkDropListDisabled]="confirmed() || gameState.isSpectator()"
+          cdkDropListSortingDisabled
+        >
+          <!-- Previous placements (averages from prior rounds) -->
+          @for (placed of getTierItems(tier.name); track placed.id) {
+            <span class="tier-row__placed-item">{{ 'items.' + placed.id | translate }}</span>
+          }
+          <!-- Current item placed in this tier -->
+          @if (gameState.currentItem(); as item) {
+            @if (placedTier() === tier.name && !confirmed()) {
+              <span class="tier-row__current-item" cdkDrag [cdkDragDisabled]="confirmed() || gameState.isSpectator()">
+                {{ 'items.' + item.id | translate }}
+              </span>
+            }
+            @if (placedTier() === tier.name && confirmed()) {
+              <span class="tier-row__current-item tier-row__current-item--submitted">
+                {{ 'items.' + item.id | translate }}
+              </span>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Player portraits -->
+  <div class="gameplay__players">
+    @for (player of activePlayers(); track player.id) {
+      <div class="gameplay__player" [class.gameplay__player--voted]="hasVoted(player.id)">
+        <app-player-avatar
+          size="sm"
+          [src]="getAvatar(player.id)"
+          [alt]="player.username + ' avatar'"
+        />
+        <span class="gameplay__player-name">{{ player.username }}</span>
+        @if (hasVoted(player.id)) {
+          <span class="gameplay__player-check">✅</span>
+        } @else {
+          <span class="gameplay__player-waiting">⏳</span>
+        }
+      </div>
+    }
+  </div>
+</div>

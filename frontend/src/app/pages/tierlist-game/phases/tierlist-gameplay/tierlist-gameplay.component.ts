@@ -1,12 +1,13 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, viewChild } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
   CdkDropList,
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PlayerAvatarComponent } from '../../../../components/player-avatar/player-avatar.component';
+import { ImageZoomComponent } from '../../../../components/image-zoom/image-zoom.component';
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
 import { AvatarService, type AvatarData } from '../../../../services/avatar.service';
@@ -22,7 +23,7 @@ interface TierRow {
 @Component({
   selector: 'app-tierlist-gameplay',
   standalone: true,
-  imports: [CdkDropListGroup, CdkDropList, CdkDrag, TranslateModule, PlayerAvatarComponent],
+  imports: [CdkDropListGroup, CdkDropList, CdkDrag, TranslateModule, PlayerAvatarComponent, ImageZoomComponent],
   templateUrl: './tierlist-gameplay.component.html',
   styleUrl: './tierlist-gameplay.component.scss',
 })
@@ -31,6 +32,9 @@ export class TierlistGameplayComponent {
   private readonly ws = inject(WebSocketService);
   private readonly avatarService = inject(AvatarService);
   private readonly sound = inject(SoundService);
+  private readonly translate = inject(TranslateService);
+
+  readonly imageZoom = viewChild.required(ImageZoomComponent);
 
   /** Whether the player has confirmed their vote */
   readonly confirmed = signal(false);
@@ -104,5 +108,9 @@ export class TierlistGameplayComponent {
 
   getTierItems(tierName: TierName): { id: string; displayName: string; imageUrl: string }[] {
     return this.previousPlacements().get(tierName) ?? [];
+  }
+
+  openZoom(src: string, itemId: string): void {
+    this.imageZoom().open(src, this.translate.instant('items.' + itemId));
   }
 }

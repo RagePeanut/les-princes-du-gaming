@@ -44,6 +44,10 @@
   height: 48px;
   object-fit: cover;
   border-radius: $radius-sm;
+
+  &--zoomable {
+    cursor: zoom-in;
+  }
 }
 
 .round-result__item-name {
@@ -132,6 +136,10 @@
   border-radius: 6px;
   opacity: 0.7;
   border: 2px solid transparent;
+
+  &--zoomable {
+    cursor: zoom-in;
+  }
 
   &--new {
     opacity: 1;

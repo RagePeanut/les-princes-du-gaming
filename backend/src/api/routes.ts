@@ -9,17 +9,17 @@ import { GameCard } from '../../../shared/types';
 import { ItemStore } from '../items/item-store';
 
 const INTERNAL_GAMES: GameCard[] = [
-  {
-    id: 'ranking-game',
-    title: 'Ranking Game',
-    imageUrl: '/images/ranking-game.png',
-    isExternal: false,
-    routePath: '/game/ranking',
-  },
+//   {
+//     id: 'ranking-game',
+//     title: 'Ranking Game',
+//     imageUrl: '/images/ranking-game.png',
+//     isExternal: false,
+//     routePath: '/game/ranking',
+//   },
   {
     id: 'tierlist',
     title: 'Tier List Game',
-    imageUrl: '/images/tierlist-game.png',
+    imageUrl: 'https://tiermaker.com/images/uploads/tiermaker-logo-og.png',
     isExternal: false,
     routePath: '/game/tierlist',
   },

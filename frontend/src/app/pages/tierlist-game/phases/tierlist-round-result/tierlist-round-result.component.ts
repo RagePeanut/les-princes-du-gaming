@@ -1,7 +1,8 @@
-import { Component, inject, computed } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, inject, computed, viewChild } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CardComponent } from '../../../../components/card/card.component';
 import { PlayerAvatarComponent } from '../../../../components/player-avatar/player-avatar.component';
+import { ImageZoomComponent } from '../../../../components/image-zoom/image-zoom.component';
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
 import { AvatarService } from '../../../../services/avatar.service';
@@ -17,7 +18,7 @@ interface TierRow {
 @Component({
   selector: 'app-tierlist-round-result',
   standalone: true,
-  imports: [TranslateModule, CardComponent, PlayerAvatarComponent],
+  imports: [TranslateModule, CardComponent, PlayerAvatarComponent, ImageZoomComponent],
   templateUrl: './tierlist-round-result.component.html',
   styleUrl: './tierlist-round-result.component.scss',
 })
@@ -25,6 +26,9 @@ export class TierlistRoundResultComponent {
   readonly gameState = inject(TierListGameStateService);
   private readonly avatarService = inject(AvatarService);
   private readonly ws = inject(WebSocketService);
+  private readonly translate = inject(TranslateService);
+
+  readonly imageZoom = viewChild.required(ImageZoomComponent);
 
   readonly tiers: TierRow[] = [
     { name: 'S', color: TIER_COLORS.S },
@@ -78,5 +82,9 @@ export class TierlistRoundResultComponent {
       type: CLIENT_MSG.NEXT_ROUND,
       payload: { lobbyCode: code },
     });
+  }
+
+  openZoom(src: string, itemId: string): void {
+    this.imageZoom().open(src, this.translate.instant('items.' + itemId));
   }
 }

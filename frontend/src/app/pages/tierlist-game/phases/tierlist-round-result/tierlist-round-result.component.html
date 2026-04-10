@@ -9,7 +9,7 @@
   @if (gameState.roundItem(); as item) {
     <div class="round-result__item-reveal">
       <div class="round-result__item-card">
-        <img class="round-result__item-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+        <img class="round-result__item-image round-result__item-image--zoomable" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" (click)="openZoom(item.imageUrl, item.id)" />
         <span class="round-result__item-name">{{ 'items.' + item.id | translate }}</span>
       </div>
       <div class="round-result__arrow">→</div>
@@ -31,11 +31,12 @@
           <!-- All items placed in this tier so far -->
           @for (item of getTierItems(tier.name); track item.id) {
             <img
-              class="tier-row__result-item"
+              class="tier-row__result-item tier-row__result-item--zoomable"
               [class.tier-row__result-item--new]="item.id === gameState.roundItem()?.id"
               [src]="item.imageUrl"
               [alt]="'items.' + item.id | translate"
               [title]="'items.' + item.id | translate"
+              (click)="openZoom(item.imageUrl, item.id)"
             />
           }
           <!-- Spacer pushes avatars to the right -->
@@ -106,3 +107,5 @@
     </div>
   }
 </div>
+
+<app-image-zoom />

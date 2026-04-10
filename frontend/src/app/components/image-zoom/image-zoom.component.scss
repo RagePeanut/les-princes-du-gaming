@@ -1,0 +1,63 @@
+@use 'theme' as *;
+
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  cursor: pointer;
+  animation: zoom-fade-in 0.2s ease-out;
+}
+
+.zoom-overlay__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: $radius-sm;
+  transition: background 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.zoom-overlay__image {
+  max-width: 90vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: $radius-md;
+  box-shadow: $shadow-elevated;
+  cursor: default;
+}
+
+.zoom-overlay__label {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes zoom-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

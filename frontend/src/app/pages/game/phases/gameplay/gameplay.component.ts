@@ -1,4 +1,4 @@
-import { Component, inject, effect, signal, computed, OnDestroy } from '@angular/core';
+import { Component, inject, effect, signal, computed, OnDestroy, viewChild } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -6,19 +6,19 @@ import {
   CdkDragPlaceholder,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BannerComponent } from '../../../../components/banner/banner.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
+import { ImageZoomComponent } from '../../../../components/image-zoom/image-zoom.component';
 import { GameStateService } from '../../../../services/game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
-import { SoundService } from '../../../../services/sound.service';
-import { CLIENT_MSG } from '@shared/ws-messages';
+import { SoundService } from '../../../../services/sound.service';import { CLIENT_MSG } from '@shared/ws-messages';
 import type { Item } from '@shared/types';
 
 @Component({
   selector: 'app-gameplay',
   standalone: true,
-  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, TranslateModule, BannerComponent, ButtonComponent],
+  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, TranslateModule, BannerComponent, ButtonComponent, ImageZoomComponent],
   templateUrl: './gameplay.component.html',
   styleUrl: './gameplay.component.scss',
 })
@@ -26,7 +26,9 @@ export class GameplayComponent implements OnDestroy {
   readonly gameState = inject(GameStateService);
   private readonly ws = inject(WebSocketService);
   private readonly sound = inject(SoundService);
+  private readonly translate = inject(TranslateService);
 
+  readonly imageZoom = viewChild.required(ImageZoomComponent);
   readonly submitted = signal(false);
   readonly rankedItems = signal<Item[]>([]);
 
@@ -86,5 +88,9 @@ export class GameplayComponent implements OnDestroy {
     });
     this.submitted.set(true);
     this.sound.play('submit');
+  }
+
+  openZoom(src: string, itemId: string): void {
+    this.imageZoom().open(src, this.translate.instant('items.' + itemId));
   }
 }

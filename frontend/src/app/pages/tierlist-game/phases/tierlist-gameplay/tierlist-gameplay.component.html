@@ -34,7 +34,7 @@
     @if (gameState.currentItem(); as item) {
       @if (!placedTier() && !confirmed()) {
         <div class="gameplay__item-card" cdkDrag [cdkDragDisabled]="confirmed() || gameState.isSpectator()">
-          <img class="gameplay__item-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+          <img class="gameplay__item-image gameplay__item-image--zoomable" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" (click)="openZoom(item.imageUrl, item.id)" />
           <span class="gameplay__item-name">{{ 'items.' + item.id | translate }}</span>
         </div>
       }
@@ -68,7 +68,7 @@
         >
           <!-- Previous placements (averages from prior rounds) -->
           @for (placed of getTierItems(tier.name); track placed.id) {
-            <img class="tier-row__placed-item" [src]="placed.imageUrl" [alt]="'items.' + placed.id | translate" [title]="'items.' + placed.id | translate" />
+            <img class="tier-row__placed-item tier-row__placed-item--zoomable" [src]="placed.imageUrl" [alt]="'items.' + placed.id | translate" [title]="'items.' + placed.id | translate" (click)="openZoom(placed.imageUrl, placed.id)" />
           }
           <!-- Current item placed in this tier -->
           @if (gameState.currentItem(); as item) {
@@ -108,3 +108,5 @@
     }
   </div>
 </div>
+
+<app-image-zoom />

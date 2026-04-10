@@ -13,7 +13,7 @@
               <li class="results__avg-item results__animated" [style.animation-delay]="(i * 0.12) + 's'">
                 <span class="results__avg-rank">{{ i + 1 }}</span>
                 <div class="results__avg-image-wrapper">
-                  <img class="results__avg-image" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" />
+                  <img class="results__avg-image results__avg-image--zoomable" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" (click)="openZoom(item.imageUrl, item.id)" />
                   <span class="results__avg-name">{{ 'items.' + item.id | translate }}</span>
                 </div>
               </li>
@@ -84,3 +84,5 @@
     }
   }
 </div>
+
+<app-image-zoom />

@@ -114,7 +114,7 @@
     "gameplay": {
       "theme": "Thème :",
       "item": "Élément {{current}}/{{total}}",
-      "instruction": "Clique sur un tier pour placer l'élément",
+      "instruction": "Glisse et dépose l'élément dans un tier",
       "voted": "✅ Vote envoyé !",
       "confirm": "✅ Confirmer le vote",
       "waiting": "En attente des autres joueurs...",

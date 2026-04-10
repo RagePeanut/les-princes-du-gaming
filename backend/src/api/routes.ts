@@ -19,7 +19,7 @@ const INTERNAL_GAMES: GameCard[] = [
   {
     id: 'tierlist',
     title: 'Tier List Game',
-    imageUrl: 'https://tiermaker.com/images/uploads/tiermaker-logo-og.png',
+    imageUrl: 'https://tiermaker.com/images/templates/tier-list-tier-list-1289304/12893041638200313.png',
     isExternal: false,
     routePath: '/game/tierlist',
   },

@@ -114,7 +114,7 @@
     "gameplay": {
       "theme": "Theme:",
       "item": "Item {{current}}/{{total}}",
-      "instruction": "Tap a tier to place the item",
+      "instruction": "Drag and drop the item into a tier",
       "voted": "✅ Vote submitted!",
       "confirm": "✅ Confirm vote",
       "waiting": "Waiting for other players...",

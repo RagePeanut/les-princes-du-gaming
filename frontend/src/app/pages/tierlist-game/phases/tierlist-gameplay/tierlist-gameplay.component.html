@@ -73,14 +73,10 @@
           <!-- Current item placed in this tier -->
           @if (gameState.currentItem(); as item) {
             @if (placedTier() === tier.name && !confirmed()) {
-              <span class="tier-row__current-item" cdkDrag [cdkDragDisabled]="confirmed() || gameState.isSpectator()">
-                {{ 'items.' + item.id | translate }}
-              </span>
+              <img class="tier-row__placed-item tier-row__placed-item--zoomable" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" [title]="'items.' + item.id | translate" (click)="openZoom(item.imageUrl, item.id)" cdkDrag [cdkDragDisabled]="confirmed() || gameState.isSpectator()" />
             }
             @if (placedTier() === tier.name && confirmed()) {
-              <span class="tier-row__current-item tier-row__current-item--submitted">
-                {{ 'items.' + item.id | translate }}
-              </span>
+              <img class="tier-row__placed-item tier-row__placed-item--submitted" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" [title]="'items.' + item.id | translate" (click)="openZoom(item.imageUrl, item.id)" />
             }
           }
         </div>

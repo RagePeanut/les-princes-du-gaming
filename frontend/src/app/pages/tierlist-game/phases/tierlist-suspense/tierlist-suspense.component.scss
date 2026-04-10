@@ -129,13 +129,10 @@
 }
 
 .tier-row__placed-item {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: $text-dark;
-  background: color.adjust($primary-light, $lightness: 14%);
-  padding: 0.2rem 0.5rem;
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
   border-radius: 6px;
-  white-space: nowrap;
 }
 
 @media (max-width: 700px) {

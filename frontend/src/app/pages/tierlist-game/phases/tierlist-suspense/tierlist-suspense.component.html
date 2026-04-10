@@ -25,7 +25,7 @@
         <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
         <div class="tier-row__content" [style.border-color]="tier.color">
           @for (placed of getTierItems(tier.name); track placed.id) {
-            <span class="tier-row__placed-item">{{ 'items.' + placed.id | translate }}</span>
+            <img class="tier-row__placed-item" [src]="placed.imageUrl" [alt]="'items.' + placed.id | translate" [title]="'items.' + placed.id | translate" />
           }
         </div>
       </div>

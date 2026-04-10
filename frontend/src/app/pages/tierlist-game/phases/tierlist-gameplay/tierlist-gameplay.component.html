@@ -68,7 +68,7 @@
         >
           <!-- Previous placements (averages from prior rounds) -->
           @for (placed of getTierItems(tier.name); track placed.id) {
-            <span class="tier-row__placed-item">{{ 'items.' + placed.id | translate }}</span>
+            <img class="tier-row__placed-item" [src]="placed.imageUrl" [alt]="'items.' + placed.id | translate" [title]="'items.' + placed.id | translate" />
           }
           <!-- Current item placed in this tier -->
           @if (gameState.currentItem(); as item) {

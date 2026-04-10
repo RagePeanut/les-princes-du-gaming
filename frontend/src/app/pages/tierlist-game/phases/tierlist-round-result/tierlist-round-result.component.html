@@ -30,9 +30,13 @@
         <div class="tier-row__content" [style.border-color]="tier.color">
           <!-- All items placed in this tier so far -->
           @for (item of getTierItems(tier.name); track item.id) {
-            <span class="tier-row__result-item" [class.tier-row__result-item--new]="item.id === gameState.roundItem()?.id">
-              {{ 'items.' + item.id | translate }}
-            </span>
+            <img
+              class="tier-row__result-item"
+              [class.tier-row__result-item--new]="item.id === gameState.roundItem()?.id"
+              [src]="item.imageUrl"
+              [alt]="'items.' + item.id | translate"
+              [title]="'items.' + item.id | translate"
+            />
           }
           <!-- Spacer pushes avatars to the right -->
           <span class="tier-row__spacer"></span>

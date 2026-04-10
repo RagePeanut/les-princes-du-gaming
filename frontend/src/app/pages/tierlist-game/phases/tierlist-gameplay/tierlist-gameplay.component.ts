@@ -48,11 +48,11 @@ export class TierlistGameplayComponent {
 
   readonly previousPlacements = computed(() => {
     const result = this.gameState.tierListResult();
-    if (!result) return new Map<TierName, { id: string; displayName: string }[]>();
-    const map = new Map<TierName, { id: string; displayName: string }[]>();
+    if (!result) return new Map<TierName, { id: string; displayName: string; imageUrl: string }[]>();
+    const map = new Map<TierName, { id: string; displayName: string; imageUrl: string }[]>();
     for (const t of result.tiers) {
       if (t.items.length > 0) {
-        map.set(t.tier, t.items.map(i => ({ id: i.id, displayName: i.displayName })));
+        map.set(t.tier, t.items.map(i => ({ id: i.id, displayName: i.displayName, imageUrl: i.imageUrl })));
       }
     }
     return map;
@@ -102,7 +102,7 @@ export class TierlistGameplayComponent {
     return this.avatarService.getAvatar(playerId);
   }
 
-  getTierItems(tierName: TierName): { id: string; displayName: string }[] {
+  getTierItems(tierName: TierName): { id: string; displayName: string; imageUrl: string }[] {
     return this.previousPlacements().get(tierName) ?? [];
   }
 }

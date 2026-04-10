@@ -19,9 +19,7 @@
             <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
             <div class="tier-row__content" [style.border-color]="tier.color">
               @for (item of getTierItems(tier.name); track item.id; let i = $index) {
-                <span class="tier-row__item" [style.animation-delay]="(i * 0.08) + 's'">
-                  {{ 'items.' + item.id | translate }}
-                </span>
+                <img class="tier-row__item" [src]="item.imageUrl" [alt]="'items.' + item.id | translate" [title]="'items.' + item.id | translate" [style.animation-delay]="(i * 0.08) + 's'" />
               }
             </div>
           </div>

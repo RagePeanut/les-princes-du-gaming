@@ -62,13 +62,10 @@
 }
 
 .tier-row__item {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: $text-dark;
-  background: color.adjust($primary-light, $lightness: 14%);
-  padding: 0.3rem 0.7rem;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
   border-radius: 6px;
-  white-space: nowrap;
   animation: fadeInUp 0.4s ease-out both;
 }
 
@@ -220,8 +217,8 @@
   }
 
   .tier-row__item {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
+    width: 36px;
+    height: 36px;
   }
 
   .end-game__lb-item {

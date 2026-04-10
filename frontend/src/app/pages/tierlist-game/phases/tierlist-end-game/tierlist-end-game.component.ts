@@ -61,11 +61,11 @@ export class TierlistEndGameComponent {
     return w.some(e => e.playerId === entry.playerId);
   }
 
-  getTierItems(tierName: TierName): { id: string; displayName: string }[] {
+  getTierItems(tierName: TierName): { id: string; displayName: string; imageUrl: string }[] {
     const result = this.gameState.tierListResult();
     if (!result) return [];
     const tier = result.tiers.find(t => t.tier === tierName);
-    return tier?.items.map(i => ({ id: i.id, displayName: i.displayName })) ?? [];
+    return tier?.items.map(i => ({ id: i.id, displayName: i.displayName, imageUrl: i.imageUrl })) ?? [];
   }
 
   getAvatar(playerId: string): AvatarData | undefined {

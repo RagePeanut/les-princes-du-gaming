@@ -126,17 +126,17 @@
 }
 
 .tier-row__result-item {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #fff;
-  background: $text-muted;
-  padding: 0.25rem 0.7rem;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
   border-radius: 6px;
   opacity: 0.7;
+  border: 2px solid transparent;
 
   &--new {
-    background: $primary;
     opacity: 1;
+    border-color: $primary;
+    box-shadow: 0 0 6px rgba($primary, 0.4);
     animation: pop-in 0.4s ease-out;
   }
 }

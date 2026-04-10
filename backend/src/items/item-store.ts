@@ -25,7 +25,18 @@ export class ItemStore {
     const filePath = path.resolve(__dirname, '..', '..', '..', '..', 'data', 'items.json');
     const raw = fs.readFileSync(filePath, 'utf-8');
     const items: Item[] = JSON.parse(raw);
-    return ItemStore.groupByCategory(items);
+    return ItemStore.groupByCategory(ItemStore.resolveImageUrls(items));
+  }
+
+  private static resolveImageUrls(items: Item[]): Item[] {
+    const baseUrl = process.env.CLOUDFLARE_AVATAR_BASE_URL;
+    if (!baseUrl) return items;
+    return items.map((item) => ({
+      ...item,
+      imageUrl: item.imageUrl.startsWith('/')
+        ? `${baseUrl}${item.imageUrl}`
+        : item.imageUrl,
+    }));
   }
 
   private static groupByCategory(items: Item[]): ItemsByCategory {

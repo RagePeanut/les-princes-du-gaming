@@ -116,7 +116,7 @@
 .tier-row__content {
   flex: 1;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.6rem;
@@ -125,29 +125,30 @@
   min-height: 48px;
 }
 
-.tier-row__spacer {
-  flex: 1;
-}
-
-.tier-row__voter {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.tier-row__voter-name {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: $text-muted;
-}
-
 .tier-row__result-item {
   font-size: 0.85rem;
   font-weight: 800;
   color: #fff;
-  background: $primary;
+  background: $text-muted;
   padding: 0.25rem 0.7rem;
   border-radius: 6px;
+  opacity: 0.7;
+
+  &--new {
+    background: $primary;
+    opacity: 1;
+    animation: pop-in 0.4s ease-out;
+  }
+}
+
+.tier-row__spacer {
+  flex: 1;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 // Scores section

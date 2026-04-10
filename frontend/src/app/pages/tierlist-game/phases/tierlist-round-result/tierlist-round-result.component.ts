@@ -55,6 +55,13 @@ export class TierlistRoundResultComponent {
     return this.votesByTier().get(tierName) ?? [];
   }
 
+  getTierItems(tierName: TierName): { id: string; displayName: string }[] {
+    const result = this.gameState.tierListResult();
+    if (!result) return [];
+    const tier = result.tiers.find(t => t.tier === tierName);
+    return tier?.items.map(i => ({ id: i.id, displayName: i.displayName })) ?? [];
+  }
+
   getAvatar(playerId: string) {
     return this.avatarService.getAvatar(playerId);
   }

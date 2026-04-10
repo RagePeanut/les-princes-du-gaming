@@ -28,23 +28,22 @@
       <div class="tier-row" [class.tier-row--final]="tier.name === gameState.roundFinalTier()">
         <div class="tier-row__label" [style.background]="tier.color">{{ tier.name }}</div>
         <div class="tier-row__content" [style.border-color]="tier.color">
-          <!-- Item on the left -->
-          @if (tier.name === gameState.roundFinalTier() && gameState.roundItem(); as item) {
-            <span class="tier-row__result-item">{{ 'items.' + item.id | translate }}</span>
+          <!-- All items placed in this tier so far -->
+          @for (item of getTierItems(tier.name); track item.id) {
+            <span class="tier-row__result-item" [class.tier-row__result-item--new]="item.id === gameState.roundItem()?.id">
+              {{ 'items.' + item.id | translate }}
+            </span>
           }
           <!-- Spacer pushes avatars to the right -->
           <span class="tier-row__spacer"></span>
           <!-- Player avatars on the far right -->
           @for (vote of getVotesForTier(tier.name); track vote.playerId) {
-            <div class="tier-row__voter">
-              <app-player-avatar
-                size="sm"
-                [headSrc]="getAvatar(vote.playerId)?.headUrl"
-                [accessorySrc]="getAvatar(vote.playerId)?.accessoryUrl"
-                [alt]="vote.username + ' avatar'"
-              />
-              <span class="tier-row__voter-name">{{ vote.username }}</span>
-            </div>
+            <app-player-avatar
+              size="sm"
+              [headSrc]="getAvatar(vote.playerId)?.headUrl"
+              [accessorySrc]="getAvatar(vote.playerId)?.accessoryUrl"
+              [alt]="vote.username + ' avatar'"
+            />
           }
         </div>
       </div>

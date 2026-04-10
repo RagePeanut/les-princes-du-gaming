@@ -657,12 +657,17 @@ describe('Tier List WebSocket game flows (integration)', () => {
 
     const ws1 = await createAndConnect();
     const ws2 = await createAndConnect();
+    const ws3 = await createAndConnect();
 
     await joinLobby(ws1, code, 'Alice');
     await drainMessages(ws1);
     await joinLobby(ws2, code, 'Bob');
     await drainMessages(ws1);
     await drainMessages(ws2);
+    await joinLobby(ws3, code, 'Charlie');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+    await drainMessages(ws3);
 
     // Host starts game → roulette
     const rouletteStartP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_ROULETTE_START);
@@ -702,10 +707,11 @@ describe('Tier List WebSocket game flows (integration)', () => {
     for (let round = 0; round < totalItems; round++) {
       const isLastRound = round === totalItems - 1;
 
-      // Both players submit tier votes
+      // All three players submit tier votes
       const suspenseP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
-      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'A' });
-      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
+      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'A', confirmed: true });
+      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B', confirmed: true });
+      send(ws3, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'A', confirmed: true });
 
       // Early completion triggers suspense
       await suspenseP1;
@@ -721,15 +727,15 @@ describe('Tier List WebSocket game flows (integration)', () => {
       const result = await roundResultP1;
       expect((result.payload as any).roundIndex).toBe(round);
       expect((result.payload as any).finalTier).toBeDefined();
-      expect((result.payload as any).votes).toHaveLength(2);
-      expect((result.payload as any).scores).toHaveLength(2);
-      expect((result.payload as any).leaderboard.length).toBeGreaterThanOrEqual(2);
+      expect((result.payload as any).votes).toHaveLength(3);
+      expect((result.payload as any).scores).toHaveLength(3);
+      expect((result.payload as any).leaderboard.length).toBeGreaterThanOrEqual(3);
 
       if (isLastRound) {
         const [ge1, ge2] = await Promise.all([gameEndP1!, gameEndP2!]);
         expect((ge1.payload as any).tierList).toBeDefined();
         expect((ge1.payload as any).tierList.tiers).toHaveLength(6);
-        expect((ge1.payload as any).leaderboard.length).toBeGreaterThanOrEqual(2);
+        expect((ge1.payload as any).leaderboard.length).toBeGreaterThanOrEqual(3);
         expect(typeof (ge1.payload as any).winnerId).toBe('string');
         expect(typeof (ge1.payload as any).isTie).toBe('boolean');
         expect((ge2.payload as any).tierList).toBeDefined();
@@ -752,12 +758,17 @@ describe('Tier List WebSocket game flows (integration)', () => {
 
     const ws1 = await createAndConnect();
     const ws2 = await createAndConnect();
+    const ws3 = await createAndConnect();
 
     const p1Id = await joinLobby(ws1, code, 'Alice');
     await drainMessages(ws1);
     await joinLobby(ws2, code, 'Bob');
     await drainMessages(ws1);
     await drainMessages(ws2);
+    await joinLobby(ws3, code, 'Charlie');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+    await drainMessages(ws3);
 
     // Start game
     send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
@@ -769,10 +780,11 @@ describe('Tier List WebSocket game flows (integration)', () => {
     jest.advanceTimersByTime(1000);
     await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
     await drainMessages(ws2);
+    await drainMessages(ws3);
 
     // Player 1 votes — player 2 should receive vote status
     const voteStatusP2 = waitForMessage(ws2, SERVER_MSG.TIERLIST_VOTE_STATUS);
-    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'S' });
+    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'S', confirmed: true });
 
     const vs = await voteStatusP2;
     const payload = vs.payload as any;
@@ -795,12 +807,17 @@ describe('Tier List WebSocket game flows (integration)', () => {
 
     const ws1 = await createAndConnect();
     const ws2 = await createAndConnect();
+    const ws3 = await createAndConnect();
 
     await joinLobby(ws1, code, 'Alice');
     await drainMessages(ws1);
     await joinLobby(ws2, code, 'Bob');
     await drainMessages(ws1);
     await drainMessages(ws2);
+    await joinLobby(ws3, code, 'Charlie');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+    await drainMessages(ws3);
 
     // Start game and advance through roulette
     send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
@@ -810,11 +827,13 @@ describe('Tier List WebSocket game flows (integration)', () => {
     jest.advanceTimersByTime(1000);
     await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
     await drainMessages(ws2);
+    await drainMessages(ws3);
 
-    // Both players vote — should trigger early completion (suspense immediately)
+    // All three players vote — should trigger early completion (suspense immediately)
     const suspenseP1 = waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
-    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A' });
-    send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A' });
+    send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A', confirmed: true });
+    send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A', confirmed: true });
+    send(ws3, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: 0, tier: 'A', confirmed: true });
 
     // Suspense should start without waiting for the 60s timer
     const suspense = await suspenseP1;
@@ -827,7 +846,7 @@ describe('Tier List WebSocket game flows (integration)', () => {
 
     const result = await roundResultP1;
     expect((result.payload as any).roundIndex).toBe(0);
-    // Both voted A (value 5), so average = 5, tier = A
+    // All voted A (value 5), so average = 5, tier = A
     expect((result.payload as any).finalTier).toBe('A');
     expect((result.payload as any).averageValue).toBe(5);
   });
@@ -840,12 +859,17 @@ describe('Tier List WebSocket game flows (integration)', () => {
 
     const ws1 = await createAndConnect();
     const ws2 = await createAndConnect();
+    const ws3 = await createAndConnect();
 
     await joinLobby(ws1, code, 'Alice');
     await drainMessages(ws1);
     await joinLobby(ws2, code, 'Bob');
     await drainMessages(ws1);
     await drainMessages(ws2);
+    await joinLobby(ws3, code, 'Charlie');
+    await drainMessages(ws1);
+    await drainMessages(ws2);
+    await drainMessages(ws3);
 
     // Start game and advance through roulette
     send(ws1, CLIENT_MSG.START_GAME, { lobbyCode: code });
@@ -855,13 +879,15 @@ describe('Tier List WebSocket game flows (integration)', () => {
     jest.advanceTimersByTime(1000);
     await waitForMessage(ws1, SERVER_MSG.TIERLIST_ROUND_START);
     await drainMessages(ws2);
+    await drainMessages(ws3);
 
     const totalItems = lobby.tierListSession!.totalRounds;
 
     // Play through all rounds quickly
     for (let round = 0; round < totalItems; round++) {
-      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
-      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B' });
+      send(ws1, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B', confirmed: true });
+      send(ws2, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B', confirmed: true });
+      send(ws3, CLIENT_MSG.SUBMIT_TIER_VOTE, { lobbyCode: code, roundIndex: round, tier: 'B', confirmed: true });
 
       // Wait for suspense
       await waitForMessage(ws1, SERVER_MSG.TIERLIST_SUSPENSE_START);
@@ -882,6 +908,7 @@ describe('Tier List WebSocket game flows (integration)', () => {
     await gameEndP1;
     await drainMessages(ws1);
     await drainMessages(ws2);
+    await drainMessages(ws3);
 
     expect(lobby.state).toBe('rematch_countdown');
 

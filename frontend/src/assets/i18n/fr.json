@@ -8,6 +8,7 @@
     "playGame": "Jouer à {{title}}",
 	"descriptions": {
 		"ranking-game": "Classez, désespérez, répétez",
+		"tierlist": "Notez des éléments ensemble, construisez la tier list ultime",
 		"gartic-phone": "Le jeu du téléphone arabe mêlé au dessin",
 		"bombparty": "Jeu de mots explosifs",
 		"dialed-gg": "Mémorisation de couleurs",
@@ -90,6 +91,12 @@
     "createLobby": "Impossible de créer le salon. Réessaie.",
     "lobbyNotFound": "Ce salon n'existe pas ou a expiré."
   },
+  "nav": {
+    "home": "Retour à l'accueil",
+    "leaveConfirm": "Tu es sûr de vouloir quitter la partie ?",
+    "cancel": "Rester",
+    "leave": "Quitter"
+  },
   "tierlist": {
     "lobby": {
       "title": "🎯 Tier List Game",
@@ -98,7 +105,7 @@
       "categoryMode": "📂 Catégorie",
       "randomMode": "🎲 Aléatoire",
       "startGame": "🚀 Lancer la partie",
-      "startHint": "Il faut au moins 2 joueurs pour commencer"
+      "startHint": "Il faut au moins 3 joueurs pour commencer"
     },
     "roulette": {
       "title": "🎰 Sélection du thème...",
@@ -139,6 +146,7 @@
   },
   "loading": "Chargement de la partie...",
   "categories": {
+    "random": "Mix aléatoire",
     "pasta": "Pâtes",
     "pizza-toppings": "Garnitures de pizza",
     "animals": "Animaux",

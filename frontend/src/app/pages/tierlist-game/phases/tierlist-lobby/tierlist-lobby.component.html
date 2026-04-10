@@ -1,6 +1,6 @@
 <div class="lobby">
   <header class="lobby__header">
-    <h1 class="lobby__title">{{ 'tierlist.lobby.title' | translate }}</h1>
+    <h1 class="lobby__title">{{ 'lobby.title' | translate }}</h1>
     <div class="lobby__share">
       <span class="lobby__share-label">{{ 'lobby.shareLabel' | translate }}</span>
       <div class="lobby__share-row">
@@ -69,13 +69,13 @@
         <app-button
           variant="success"
           [fullWidth]="true"
-          [disabled]="gameState.players().length < 2"
+          [disabled]="gameState.players().length < 3"
           (clicked)="startGame()"
         >
           {{ 'tierlist.lobby.startGame' | translate }}
         </app-button>
-        @if (gameState.players().length < 2) {
-          <p class="lobby__start-hint">{{ 'tierlist.lobby.startHint' | translate }}</p>
+        @if (gameState.players().length < 3) {
+          <p class="lobby__start-hint">{{ 'lobby.startHint' | translate }}</p>
         }
       }
     </app-card>

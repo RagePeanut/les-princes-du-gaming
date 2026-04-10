@@ -58,7 +58,7 @@ function makeLobby(players: Map<string, Player>, overrides: Partial<Lobby> = {})
     code: 'TEST01',
     hostId: firstPlayer?.id ?? 'p0',
     players,
-    config: { rounds: 1, timerSeconds: 30, timeBetweenRounds: 0, mode: 'random' },
+    config: { rounds: 1, timerSeconds: 30, timeBetweenRounds: 0, mode: 'category' },
     state: 'waiting',
     gameSession: null,
     gameType: 'tierlist',
@@ -176,7 +176,8 @@ describe('Property 1: Theme selection validity', () => {
       fc.property(arbItemStoreWithEligible(), arbPlayers(), ({ itemStore, categories }, players) => {
         const callbacks = makeCallbacks();
         const engine = new TierListGameEngine(itemStore, callbacks);
-        const lobby = makeLobby(players);
+        // Force category mode for this test since it validates category-based theme selection
+        const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: 30, timeBetweenRounds: 0, mode: 'category' } });
 
         engine.startGame(lobby);
 
@@ -200,6 +201,45 @@ describe('Property 1: Theme selection validity', () => {
       { numRuns: 100 },
     );
   });
+
+  it('random mode picks 15 items across categories and skips roulette', () => {
+    fc.assert(
+      fc.property(arbItemStoreWithEligible(), arbPlayers(), ({ itemStore }, players) => {
+        const callbacks = makeCallbacks();
+        const engine = new TierListGameEngine(itemStore, callbacks);
+        const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: 30, timeBetweenRounds: 0, mode: 'random' } });
+
+        const allItems = itemStore.getAllItems();
+        if (allItems.length < 15) return; // skip if not enough items
+
+        engine.startGame(lobby);
+
+        const session = lobby.tierListSession!;
+
+        // 1. Roulette is skipped
+        expect(callbacks.calls.onRouletteStart.length).toBe(0);
+        expect(callbacks.calls.onRouletteResult.length).toBeGreaterThanOrEqual(1);
+
+        // 2. Theme is 'random'
+        expect(session.theme).toBe('random');
+
+        // 3. 15 items selected
+        expect(session.items.length).toBe(15);
+        expect(session.totalRounds).toBe(15);
+
+        // 4. All items are valid (exist in the store)
+        const allIds = new Set(allItems.map((i) => i.id));
+        for (const item of session.items) {
+          expect(allIds.has(item.id)).toBe(true);
+        }
+
+        // 5. No duplicate items
+        const sessionIds = new Set(session.items.map((i) => i.id));
+        expect(sessionIds.size).toBe(15);
+      }),
+      { numRuns: 100 },
+    );
+  });
 });
 
 // ─── Property 2: Theme items completeness and permutation ────────────────────
@@ -219,7 +259,8 @@ describe('Property 2: Theme items completeness and permutation', () => {
       fc.property(arbItemStoreWithEligible(), arbPlayers(), ({ itemStore }, players) => {
         const callbacks = makeCallbacks();
         const engine = new TierListGameEngine(itemStore, callbacks);
-        const lobby = makeLobby(players);
+        // Force category mode for this test since it validates category-based item selection
+        const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: 30, timeBetweenRounds: 0, mode: 'category' } });
 
         engine.startGame(lobby);
 
@@ -449,7 +490,7 @@ describe('Property 6: Default vote for non-voters', () => {
 
           const callbacks = makeCallbacks();
           const engine = new TierListGameEngine(itemStore, callbacks);
-          const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: -1, timeBetweenRounds: 0, mode: 'random' } });
+          const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: -1, timeBetweenRounds: 0, mode: 'category' } });
 
           engine.startGame(lobby);
 
@@ -507,7 +548,7 @@ describe('Property 7: Early round completion', () => {
           const callbacks = makeCallbacks();
           const engine = new TierListGameEngine(itemStore, callbacks);
           // Use a long timer so it won't expire during the test
-          const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: -1, timeBetweenRounds: 0, mode: 'random' } });
+          const lobby = makeLobby(players, { config: { rounds: 1, timerSeconds: -1, timeBetweenRounds: 0, mode: 'category' } });
 
           engine.startGame(lobby);
 

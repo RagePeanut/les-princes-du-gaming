@@ -1,3 +1,28 @@
+.home-btn {
+  position: fixed;
+  top: 12px;
+  left: 16px;
+  z-index: 1000;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 30, 50, 0.85);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(50, 50, 80, 0.95);
+  }
+
+  &:focus {
+    outline: 2px solid #7c5cfc;
+    outline-offset: 2px;
+  }
+}
+
 .lang-switcher {
   position: fixed;
   top: 12px;
@@ -22,6 +47,74 @@
     option {
       background: #1e1e32;
       color: #fff;
+    }
+  }
+}
+
+.leave-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.leave-dialog {
+  background: #1e1e32;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+
+  &__text {
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 1.2rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  &__btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &--cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    &--confirm {
+      background: #e74c3c;
+      color: #fff;
+
+      &:hover {
+        background: #c0392b;
+      }
+    }
+
+    &:focus {
+      outline: 2px solid #7c5cfc;
+      outline-offset: 2px;
     }
   }
 }

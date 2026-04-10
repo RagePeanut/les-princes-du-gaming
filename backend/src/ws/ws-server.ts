@@ -191,6 +191,15 @@ export class GameWebSocketServer {
       return;
     }
 
+    // Reject duplicate usernames (case-insensitive)
+    const nameTaken = Array.from(lobby.players.values()).some(
+      (p) => p.username.toLowerCase() === username.toLowerCase(),
+    );
+    if (nameTaken) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Username already taken in this lobby.' } });
+      return;
+    }
+
     try {
       const player = this.lobbyManager.joinLobby(lobbyCode, username);
       this.registerSocket(ws, player.id, lobbyCode);
@@ -249,10 +258,11 @@ export class GameWebSocketServer {
       return;
     }
 
-    // Need at least 2 players
+    // Need at least 3 players for tier list, 2 for ranking
     const activePlayers = Array.from(lobby.players.values()).filter(p => !p.isSpectator);
-    if (activePlayers.length < 2) {
-      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Need at least 2 players to start.' } });
+    const minPlayers = lobby.gameType === 'tierlist' ? 3 : 2;
+    if (activePlayers.length < minPlayers) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: `Need at least ${minPlayers} players to start.` } });
       return;
     }
 

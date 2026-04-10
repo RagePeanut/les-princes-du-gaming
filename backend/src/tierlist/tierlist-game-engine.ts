@@ -75,24 +75,44 @@ export class TierListGameEngine {
    * Selects a theme from categories with ≥5 items, shuffles items, sends roulette.
    */
   startGame(lobby: Lobby): void {
-    // Get categories with ≥5 items
-    const allCategories = this.itemStore.getCategories();
-    const eligibleCategories = allCategories.filter(
-      (cat) => this.itemStore.getItemsByCategory(cat).length >= 5,
-    );
+    let theme: string;
+    let items: Item[];
 
-    if (eligibleCategories.length === 0) {
-      throw new Error('Not enough items in any category for a tier list game');
-    }
+    if (lobby.config.mode === 'random') {
+      // Random mode: pick 15 items randomly across all categories
+      const allItems = this.itemStore.getAllItems();
+      if (allItems.length < 15) {
+        throw new Error('Not enough items for a random tier list game (need at least 15)');
+      }
 
-    // Select a random theme
-    const theme = eligibleCategories[Math.floor(Math.random() * eligibleCategories.length)];
-    const items = [...this.itemStore.getItemsByCategory(theme)];
+      // Fisher-Yates shuffle all items
+      const shuffled = [...allItems];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
 
-    // Fisher-Yates shuffle
-    for (let i = items.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [items[i], items[j]] = [items[j], items[i]];
+      items = shuffled.slice(0, 15);
+      theme = 'random';
+    } else {
+      // Category mode: pick a random eligible category
+      const allCategories = this.itemStore.getCategories();
+      const eligibleCategories = allCategories.filter(
+        (cat) => this.itemStore.getItemsByCategory(cat).length >= 5,
+      );
+
+      if (eligibleCategories.length === 0) {
+        throw new Error('Not enough items in any category for a tier list game');
+      }
+
+      theme = eligibleCategories[Math.floor(Math.random() * eligibleCategories.length)];
+      items = [...this.itemStore.getItemsByCategory(theme)];
+
+      // Fisher-Yates shuffle
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
     }
 
     // Initialize tier list session
@@ -120,32 +140,46 @@ export class TierListGameEngine {
     }
 
     lobby.tierListSession = session;
-    lobby.state = 'roulette';
 
-    // Send roulette start with all eligible themes
-    this.callbacks.onRouletteStart(lobby.code, eligibleCategories);
+    // Skip roulette animation when mode is "random"
+    if (lobby.config.mode === 'random') {
+      this.callbacks.onRouletteResult(lobby.code, theme, items);
+      lobby.state = 'playing';
+      this.startRound(lobby);
+    } else {
+      lobby.state = 'roulette';
 
-    // After a short delay, send the roulette result and start the first round
-    // Use a 5-second delay for the roulette animation
-    const rouletteTimerKey = `roulette:${lobby.code}`;
-    startTimer(
-      rouletteTimerKey,
-      5,
-      () => {}, // no tick needed for roulette
-      () => {
-        this.callbacks.onRouletteResult(lobby.code, theme, items);
-        // Start the first round after a brief pause (1 second)
-        const startTimerKey = `rouletteEnd:${lobby.code}`;
-        startTimer(
-          startTimerKey,
-          1,
-          () => {},
-          () => {
-            this.startRound(lobby);
-          },
-        );
-      },
-    );
+      // Compute eligible categories for the roulette display
+      const allCategories = this.itemStore.getCategories();
+      const rouletteThemes = allCategories.filter(
+        (cat) => this.itemStore.getItemsByCategory(cat).length >= 5,
+      );
+
+      // Send roulette start with all eligible themes
+      this.callbacks.onRouletteStart(lobby.code, rouletteThemes);
+
+      // After a short delay, send the roulette result and start the first round
+      // Use a 5-second delay for the roulette animation
+      const rouletteTimerKey = `roulette:${lobby.code}`;
+      startTimer(
+        rouletteTimerKey,
+        5,
+        () => {}, // no tick needed for roulette
+        () => {
+          this.callbacks.onRouletteResult(lobby.code, theme, items);
+          // Start the first round after a brief pause (1 second)
+          const startTimerKey = `rouletteEnd:${lobby.code}`;
+          startTimer(
+            startTimerKey,
+            1,
+            () => {},
+            () => {
+              this.startRound(lobby);
+            },
+          );
+        },
+      );
+    }
   }
 
   /**

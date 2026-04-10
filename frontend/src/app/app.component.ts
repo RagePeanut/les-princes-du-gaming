@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastComponent } from './components/toast/toast.component';
 import { ReconnectOverlayComponent } from './components/reconnect-overlay/reconnect-overlay.component';
@@ -13,8 +13,10 @@ import { UpperCasePipe } from '@angular/common';
 })
 export class AppComponent {
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   readonly languages = ['en', 'fr'];
+  showLeaveDialog = false;
 
   constructor() {
     this.translate.addLangs(this.languages);
@@ -27,7 +29,27 @@ export class AppComponent {
     return this.translate.getCurrentLang() || 'fr';
   }
 
+  get isInGame(): boolean {
+    return this.router.url !== '/';
+  }
+
   switchLang(lang: string): void {
     this.translate.use(lang);
+  }
+
+  goHome(): void {
+    // Check if user is in a game page (not the hub)
+    if (this.isInGame) {
+      this.showLeaveDialog = true;
+    }
+  }
+
+  confirmLeave(): void {
+    this.showLeaveDialog = false;
+    this.router.navigate(['/']);
+  }
+
+  cancelLeave(): void {
+    this.showLeaveDialog = false;
   }
 }

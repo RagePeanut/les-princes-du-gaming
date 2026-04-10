@@ -61,13 +61,39 @@ export class GameComponent implements OnInit, OnDestroy {
       return;
     }
     this.lobbyCode.set(code);
+
+    // Auto-rejoin if we have a cached session for this lobby
+    const cached = sessionStorage.getItem(`game:${code}`);
+    if (cached) {
+      try {
+        const { username } = JSON.parse(cached);
+        if (username) {
+          this.usernameInput.set(username);
+          this.autoRejoin(code, username);
+          return;
+        }
+      } catch { /* ignore bad cache */ }
+    }
+
     this.validateLobby(code);
+  }
+
+  private async autoRejoin(code: string, username: string): Promise<void> {
+    try {
+      await this.lobbyService.getLobbyStatus(code);
+      this.joinLobby();
+    } catch {
+      sessionStorage.removeItem(`game:${code}`);
+      this.toastService.error(this.translateService.instant('errors.lobbyNotFound'));
+      this.router.navigate(['/']);
+    }
   }
 
   private async validateLobby(code: string): Promise<void> {
     try {
       await this.lobbyService.getLobbyStatus(code);
     } catch {
+      sessionStorage.removeItem(`game:${code}`);
       this.toastService.error(this.translateService.instant('errors.lobbyNotFound'));
       this.router.navigate(['/']);
     }
@@ -91,16 +117,29 @@ export class GameComponent implements OnInit, OnDestroy {
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     this.ws.connect(wsUrl);
 
-    const connSub = this.ws.on<LobbyUpdatePayload>(SERVER_MSG.LOBBY_UPDATE).subscribe(() => {
+    const connSub = this.ws.on<LobbyUpdatePayload>(SERVER_MSG.LOBBY_UPDATE).subscribe((payload) => {
       if (!this.joined()) {
+        // Find our player by username to get the playerId
+        const me = payload.players.find(
+          (p) => p.username.toLowerCase() === username.toLowerCase(),
+        );
+        if (me && !this.gameState.currentPlayerId()) {
+          this.gameState.init(this.lobbyCode(), me.id);
+          this.gameState.setCurrentPlayer(me.id);
+          // Apply this first lobby update directly since the state service
+          // subscription was set up after this message was already emitted
+          this.gameState.applyLobbyUpdate(payload);
+        }
         this.joined.set(true);
         this.joining.set(false);
+        // Cache session for reconnection
+        sessionStorage.setItem(`game:${this.lobbyCode()}`, JSON.stringify({ username }));
       }
     });
     this.subscription.add(connSub);
 
     const avatarSub = this.ws.on<AvatarAssignedPayload>(SERVER_MSG.AVATAR_ASSIGNED).subscribe((payload) => {
-      if (!this.joined() && !this.gameState.currentPlayerId()) {
+      if (!this.gameState.currentPlayerId()) {
         this.gameState.init(this.lobbyCode(), payload.playerId);
         this.gameState.setCurrentPlayer(payload.playerId);
       }

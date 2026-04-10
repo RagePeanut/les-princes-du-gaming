@@ -103,6 +103,18 @@ export const GameStateService = signalStore(
         this._subscribeToMessages();
       },
 
+      applyLobbyUpdate(payload: LobbyUpdatePayload): void {
+        const currentId = store.currentPlayerId();
+        const me = payload.players.find((p) => p.id === currentId);
+        patchState(store, {
+          players: payload.players,
+          hostId: payload.hostId,
+          config: payload.config,
+          isHost: me?.isHost ?? false,
+          isSpectator: me?.isSpectator ?? false,
+        });
+      },
+
       reset(): void {
         subscription.unsubscribe();
         subscription = new Subscription();
@@ -123,7 +135,6 @@ export const GameStateService = signalStore(
       _subscribeToMessages(): void {
         subscription.add(
           ws.on<LobbyUpdatePayload>(SERVER_MSG.LOBBY_UPDATE).subscribe((payload) => {
-			console.log(payload)
             const currentId = store.currentPlayerId();
             const me = payload.players.find((p) => p.id === currentId);
             const prevCount = store.players().length;

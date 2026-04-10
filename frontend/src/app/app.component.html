@@ -1,3 +1,9 @@
+@if (isInGame) {
+  <button class="home-btn" (click)="goHome()" [attr.aria-label]="'nav.home' | translate">
+    🏠
+  </button>
+}
+
 <div class="lang-switcher">
   <select
     [value]="currentLang"
@@ -9,6 +15,22 @@
     }
   </select>
 </div>
+
+@if (showLeaveDialog) {
+  <div class="leave-dialog-backdrop" (click)="cancelLeave()">
+    <div class="leave-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <p class="leave-dialog__text">{{ 'nav.leaveConfirm' | translate }}</p>
+      <div class="leave-dialog__actions">
+        <button class="leave-dialog__btn leave-dialog__btn--cancel" (click)="cancelLeave()">
+          {{ 'nav.cancel' | translate }}
+        </button>
+        <button class="leave-dialog__btn leave-dialog__btn--confirm" (click)="confirmLeave()">
+          {{ 'nav.leave' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 <router-outlet />
 <app-toast />

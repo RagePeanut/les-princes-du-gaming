@@ -28,6 +28,7 @@ import { SERVER_MSG } from '@shared/ws-messages';
 import type { TierListResult } from '@shared/types';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from './websocket.service';
+import { SoundService } from './sound.service';
 
 export interface VoteStatus {
   playerId: string;
@@ -131,6 +132,7 @@ export const TierListGameStateService = signalStore(
   })),
   withMethods((store) => {
     const ws = inject(WebSocketService);
+    const sound = inject(SoundService);
     const subscription = new Subscription();
 
     return {
@@ -161,6 +163,10 @@ export const TierListGameStateService = signalStore(
           ws.on<LobbyUpdatePayload>(SERVER_MSG.LOBBY_UPDATE).subscribe((payload) => {
             const currentId = store.currentPlayerId();
             const me = payload.players.find((p) => p.id === currentId);
+            const prevCount = store.players().length;
+            if (payload.players.length > prevCount && prevCount > 0) {
+              sound.play('playerJoin');
+            }
             patchState(store, {
               players: payload.players,
               hostId: payload.hostId,
@@ -192,6 +198,7 @@ export const TierListGameStateService = signalStore(
         // Roulette result
         subscription.add(
           ws.on<TierListRouletteResultPayload>(SERVER_MSG.TIERLIST_ROULETTE_RESULT).subscribe((payload) => {
+            sound.play('rouletteResult');
             patchState(store, {
               selectedTheme: payload.theme,
               themeItems: payload.items,
@@ -203,6 +210,7 @@ export const TierListGameStateService = signalStore(
         // Round start
         subscription.add(
           ws.on<TierListRoundStartPayload>(SERVER_MSG.TIERLIST_ROUND_START).subscribe((payload) => {
+            sound.play('gameStart');
             patchState(store, {
               phase: 'playing',
               currentRound: payload.roundIndex + 1,
@@ -234,6 +242,11 @@ export const TierListGameStateService = signalStore(
         // Timer tick
         subscription.add(
           ws.on<TimerTickPayload>(SERVER_MSG.TIMER_TICK).subscribe((payload) => {
+            if (payload.secondsRemaining <= 3 && payload.secondsRemaining > 0) {
+              sound.play('timerUrgent');
+            } else if (payload.secondsRemaining <= 10 && payload.secondsRemaining > 0) {
+              sound.play('timerTick');
+            }
             patchState(store, { timerSeconds: payload.secondsRemaining });
           })
         );
@@ -251,6 +264,7 @@ export const TierListGameStateService = signalStore(
         // Round result — accumulate tier list progressively
         subscription.add(
           ws.on<TierListRoundResultPayload>(SERVER_MSG.TIERLIST_ROUND_RESULT).subscribe((payload) => {
+            sound.play('roundEnd');
             // Build updated tier list result by adding this round's item to its final tier
             const current = store.tierListResult();
             const TIER_COLORS_MAP: Record<string, string> = {
@@ -291,6 +305,7 @@ export const TierListGameStateService = signalStore(
         // Game ended
         subscription.add(
           ws.on<TierListGameEndedPayload>(SERVER_MSG.TIERLIST_GAME_ENDED).subscribe((payload) => {
+            sound.play('gameEnd');
             patchState(store, {
               phase: 'results',
               tierListResult: payload.tierList,
@@ -304,6 +319,9 @@ export const TierListGameStateService = signalStore(
         // Rematch countdown
         subscription.add(
           ws.on<RematchCountdownPayload>(SERVER_MSG.REMATCH_COUNTDOWN).subscribe((payload) => {
+            if (payload.secondsRemaining <= 3 && payload.secondsRemaining > 0) {
+              sound.play('countdown');
+            }
             patchState(store, {
               phase: 'rematch_countdown',
               rematchCountdown: payload.secondsRemaining,

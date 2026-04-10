@@ -24,6 +24,7 @@ import type {
 import { SERVER_MSG } from '@shared/ws-messages';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from './websocket.service';
+import { SoundService } from './sound.service';
 
 export interface GameState {
   phase: LobbyState | null;
@@ -93,6 +94,7 @@ export const GameStateService = signalStore(
   })),
   withMethods((store) => {
     const ws = inject(WebSocketService);
+    const sound = inject(SoundService);
     const subscription = new Subscription();
 
     return {
@@ -123,6 +125,10 @@ export const GameStateService = signalStore(
 			console.log(payload)
             const currentId = store.currentPlayerId();
             const me = payload.players.find((p) => p.id === currentId);
+            const prevCount = store.players().length;
+            if (payload.players.length > prevCount && prevCount > 0) {
+              sound.play('playerJoin');
+            }
             patchState(store, {
               players: payload.players,
               hostId: payload.hostId,
@@ -135,6 +141,7 @@ export const GameStateService = signalStore(
 
         subscription.add(
           ws.on<GameStartedPayload>(SERVER_MSG.GAME_STARTED).subscribe((payload) => {
+            sound.play('gameStart');
             patchState(store, {
               phase: 'playing',
               currentRound: payload.roundIndex + 1,
@@ -151,12 +158,18 @@ export const GameStateService = signalStore(
 
         subscription.add(
           ws.on<TimerTickPayload>(SERVER_MSG.TIMER_TICK).subscribe((payload) => {
+            if (payload.secondsRemaining <= 3 && payload.secondsRemaining > 0) {
+              sound.play('timerUrgent');
+            } else if (payload.secondsRemaining <= 10 && payload.secondsRemaining > 0) {
+              sound.play('timerTick');
+            }
             patchState(store, { timerSeconds: payload.secondsRemaining });
           })
         );
 
         subscription.add(
           ws.on<RoundEndedPayload>(SERVER_MSG.ROUND_ENDED).subscribe((payload) => {
+            sound.play('roundEnd');
             patchState(store, {
               phase: 'round_results',
               roundScores: payload.scores,
@@ -175,6 +188,7 @@ export const GameStateService = signalStore(
 
         subscription.add(
           ws.on<GameEndedPayload>(SERVER_MSG.GAME_ENDED).subscribe((payload) => {
+            sound.play('gameEnd');
             patchState(store, {
               phase: 'results',
               leaderboard: payload.leaderboard,
@@ -186,6 +200,9 @@ export const GameStateService = signalStore(
 
         subscription.add(
           ws.on<RematchCountdownPayload>(SERVER_MSG.REMATCH_COUNTDOWN).subscribe((payload) => {
+            if (payload.secondsRemaining <= 3 && payload.secondsRemaining > 0) {
+              sound.play('countdown');
+            }
             patchState(store, {
               phase: 'rematch_countdown',
               rematchCountdown: payload.secondsRemaining,

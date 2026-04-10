@@ -1,6 +1,7 @@
 import { Component, inject, effect, signal, OnDestroy, ElementRef, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
+import { SoundService } from '../../../../services/sound.service';
 
 @Component({
   selector: 'app-tierlist-roulette',
@@ -11,6 +12,7 @@ import { TierListGameStateService } from '../../../../services/tierlist-game-sta
 })
 export class TierlistRouletteComponent implements OnDestroy {
   readonly gameState = inject(TierListGameStateService);
+  private readonly sound = inject(SoundService);
 
   readonly themes = signal<string[]>([]);
   readonly selectedTheme = signal<string | null>(null);
@@ -23,6 +25,7 @@ export class TierlistRouletteComponent implements OnDestroy {
   private readonly minSpeed = 0.3;
   private stopRequested = false;
   private targetTheme: string | null = null;
+  private lastItemIndex = -1;
 
   readonly trackEl = viewChild<ElementRef<HTMLDivElement>>('track');
 
@@ -74,6 +77,16 @@ export class TierlistRouletteComponent implements OnDestroy {
     const halfWidth = el.scrollWidth / 2;
     if (halfWidth > 0 && this.scrollPosition >= halfWidth) {
       this.scrollPosition -= halfWidth;
+    }
+
+    // Play tick when crossing an item boundary
+    const itemWidth = (el.firstElementChild as HTMLElement)?.offsetWidth ?? 160;
+    const gap = 16; // 1rem gap
+    const step = itemWidth + gap;
+    const currentIndex = Math.floor(this.scrollPosition / step);
+    if (currentIndex !== this.lastItemIndex) {
+      this.lastItemIndex = currentIndex;
+      this.sound.play('rouletteTick');
     }
 
     el.style.transform = `translateX(-${this.scrollPosition}px)`;

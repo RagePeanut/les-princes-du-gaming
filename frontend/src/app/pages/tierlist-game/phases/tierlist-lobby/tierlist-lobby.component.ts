@@ -6,6 +6,7 @@ import { PlayerAvatarComponent } from '../../../../components/player-avatar/play
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
 import { AvatarService } from '../../../../services/avatar.service';
+import { SoundService } from '../../../../services/sound.service';
 import { CLIENT_MSG } from '@shared/ws-messages';
 
 @Component({
@@ -19,6 +20,7 @@ export class TierlistLobbyComponent {
   readonly gameState = inject(TierListGameStateService);
   private readonly ws = inject(WebSocketService);
   private readonly avatarService = inject(AvatarService);
+  private readonly sound = inject(SoundService);
 
   readonly linkCopied = signal(false);
   private readonly lastTimerValue = signal(15);
@@ -35,6 +37,7 @@ export class TierlistLobbyComponent {
   });
 
   startGame(): void {
+    this.sound.play('gameStart');
     this.ws.send({
       type: CLIENT_MSG.START_GAME,
       payload: { lobbyCode: this.gameState.lobbyCode() ?? '' },
@@ -44,6 +47,7 @@ export class TierlistLobbyComponent {
   updateTimer(event: Event): void {
     const value = (event.target as HTMLInputElement).valueAsNumber;
     this.lastTimerValue.set(value);
+    this.sound.play('settingChange');
     this.ws.send({
       type: CLIENT_MSG.UPDATE_CONFIG,
       payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { timerSeconds: value } },
@@ -51,6 +55,7 @@ export class TierlistLobbyComponent {
   }
 
   updateMode(mode: 'category' | 'random'): void {
+    this.sound.play('settingChange');
     this.ws.send({
       type: CLIENT_MSG.UPDATE_CONFIG,
       payload: { lobbyCode: this.gameState.lobbyCode() ?? '', config: { mode } },
@@ -61,6 +66,7 @@ export class TierlistLobbyComponent {
     try {
       await navigator.clipboard.writeText(this.shareableLink());
       this.linkCopied.set(true);
+      this.sound.play('copyLink');
       setTimeout(() => this.linkCopied.set(false), 2000);
     } catch { /* fallback */ }
   }

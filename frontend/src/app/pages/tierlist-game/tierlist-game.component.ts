@@ -10,6 +10,7 @@ import { LobbyService } from '../../services/lobby.service';
 import { ToastService } from '../../services/toast.service';
 import { ButtonComponent } from '../../components/button/button.component';
 import { SpectatorOverlayComponent } from '../../components/spectator-overlay/spectator-overlay.component';
+import { SoundToggleComponent } from '../../components/sound-toggle/sound-toggle.component';
 import { TierlistLobbyComponent } from './phases/tierlist-lobby/tierlist-lobby.component';
 import { TierlistRouletteComponent } from './phases/tierlist-roulette/tierlist-roulette.component';
 import { TierlistGameplayComponent } from './phases/tierlist-gameplay/tierlist-gameplay.component';
@@ -33,6 +34,7 @@ import type { LobbyUpdatePayload, AvatarAssignedPayload, ErrorPayload, JoinedAsS
     TierlistSuspenseComponent,
     TierlistRoundResultComponent,
     TierlistEndGameComponent,
+    SoundToggleComponent,
   ],
   templateUrl: './tierlist-game.component.html',
   styleUrl: './tierlist-game.component.scss',

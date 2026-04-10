@@ -10,6 +10,7 @@ import { PlayerAvatarComponent } from '../../../../components/player-avatar/play
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
 import { AvatarService, type AvatarData } from '../../../../services/avatar.service';
+import { SoundService } from '../../../../services/sound.service';
 import { TIER_COLORS } from '@shared/types';
 import type { TierName } from '@shared/types';
 
@@ -29,6 +30,7 @@ export class TierlistGameplayComponent {
   readonly gameState = inject(TierListGameStateService);
   private readonly ws = inject(WebSocketService);
   private readonly avatarService = inject(AvatarService);
+  private readonly sound = inject(SoundService);
 
   /** Whether the player has confirmed their vote */
   readonly confirmed = signal(false);
@@ -69,6 +71,7 @@ export class TierlistGameplayComponent {
     if (this.confirmed() || this.gameState.isSpectator()) return;
     this.placedTier.set(tierName);
     this.sendVote(tierName, false);
+    this.sound.play('drop');
   }
 
   /** Item dragged back to source */
@@ -83,6 +86,7 @@ export class TierlistGameplayComponent {
     if (!tier || this.confirmed() || this.gameState.isSpectator()) return;
     this.sendVote(tier, true);
     this.confirmed.set(true);
+    this.sound.play('confirm');
   }
 
   private sendVote(tier: TierName, isConfirmed: boolean): void {

@@ -10,6 +10,7 @@ import { LobbyService } from '../../services/lobby.service';
 import { ToastService } from '../../services/toast.service';
 import { ButtonComponent } from '../../components/button/button.component';
 import { SpectatorOverlayComponent } from '../../components/spectator-overlay/spectator-overlay.component';
+import { SoundToggleComponent } from '../../components/sound-toggle/sound-toggle.component';
 import { LobbyComponent } from './phases/lobby/lobby.component';
 import { GameplayComponent } from './phases/gameplay/gameplay.component';
 import { RoundResultsComponent } from './phases/round-results/round-results.component';
@@ -29,6 +30,7 @@ import type { LobbyUpdatePayload, AvatarAssignedPayload, ErrorPayload, JoinedAsS
     GameplayComponent,
     RoundResultsComponent,
     EndGameComponent,
+    SoundToggleComponent,
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',

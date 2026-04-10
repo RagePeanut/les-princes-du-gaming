@@ -11,6 +11,7 @@ import { BannerComponent } from '../../../../components/banner/banner.component'
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { GameStateService } from '../../../../services/game-state.service';
 import { WebSocketService } from '../../../../services/websocket.service';
+import { SoundService } from '../../../../services/sound.service';
 import { CLIENT_MSG } from '@shared/ws-messages';
 import type { Item } from '@shared/types';
 
@@ -24,6 +25,7 @@ import type { Item } from '@shared/types';
 export class GameplayComponent implements OnDestroy {
   readonly gameState = inject(GameStateService);
   private readonly ws = inject(WebSocketService);
+  private readonly sound = inject(SoundService);
 
   readonly submitted = signal(false);
   readonly rankedItems = signal<Item[]>([]);
@@ -67,6 +69,7 @@ export class GameplayComponent implements OnDestroy {
     moveItemInArray(items, event.previousIndex, event.currentIndex);
     this.rankedItems.set(items);
     this.gameState.updateRankings(items.map((item) => item.id));
+    this.sound.play('drop');
   }
 
   submitRanking(): void {
@@ -82,5 +85,6 @@ export class GameplayComponent implements OnDestroy {
       },
     });
     this.submitted.set(true);
+    this.sound.play('submit');
   }
 }

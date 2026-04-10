@@ -23,15 +23,52 @@ export function computeAverageAndTier(votes: Map<string, TierName>): { average: 
 }
 
 /**
- * Computes the proximity score for a single player's vote.
+ * Computes round scores for all players using scatter-weighted proximity scoring.
  *
- * Formula: Score = 5 - |vote_value - average|, rounded to 2 decimal places.
- * The score rewards players whose vote is closer to the group average.
+ * Algorithm (ported from Unity tier list game):
+ * 1. Convert votes to 0-based indices: F=0, D=1, C=2, B=3, A=4, S=5
+ * 2. Compute average index, rounded to nearest integer (away from zero)
+ * 3. Compute scatter = mean of |voteIndex - average| across all votes
+ * 4. Per player: variance = |average - voteIndex|
+ *    nominalScore = max(0, 5 - variance * 2)
+ *    finalScore = round(nominalScore * scatter) (away from zero)
+ *
+ * The scatter multiplier rewards controversial items (high disagreement)
+ * more than consensus items, making the game more dynamic.
  */
-export function computeProximityScore(votedTier: TierName, averageValue: number): number {
-  const voteValue = TIER_VALUES[votedTier];
-  const score = 5 - Math.abs(voteValue - averageValue);
-  return Math.round(score * 100) / 100;
+
+const TIER_INDEX_ORDER: TierName[] = ['F', 'D', 'C', 'B', 'A', 'S'];
+
+function tierToIndex(tier: TierName): number {
+  return TIER_INDEX_ORDER.indexOf(tier);
+}
+
+function roundAwayFromZero(value: number): number {
+  return value >= 0 ? Math.round(value) : -Math.round(-value);
+}
+
+export function computeRoundScores(votes: Map<string, TierName>): Map<string, number> {
+  const entries = Array.from(votes.entries());
+  const indices = entries.map(([, tier]) => tierToIndex(tier));
+
+  // Step 1: average index, rounded to nearest integer (away from zero)
+  const rawAverage = indices.reduce((sum, v) => sum + v, 0) / indices.length;
+  const average = roundAwayFromZero(rawAverage);
+
+  // Step 2: scatter = mean absolute deviation from the rounded average
+  const scatter = indices.map(idx => Math.abs(idx - average)).reduce((sum, v) => sum + v, 0) / indices.length;
+
+  // Step 3: per-player score
+  const scores = new Map<string, number>();
+  for (const [playerId, tier] of entries) {
+    const voteIndex = tierToIndex(tier);
+    const variance = Math.abs(average - voteIndex);
+    const nominalScore = Math.max(0, 5 - variance * 2);
+    const finalScore = roundAwayFromZero(nominalScore * scatter);
+    scores.set(playerId, finalScore);
+  }
+
+  return scores;
 }
 
 /**

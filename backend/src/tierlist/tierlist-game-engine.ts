@@ -20,7 +20,7 @@ import {
 import { ItemStore } from '../items/item-store';
 import {
   computeAverageAndTier,
-  computeProximityScore,
+  computeRoundScores,
   updateCumulativeScores,
   buildTierListLeaderboard,
 } from './tierlist-scoring-engine';
@@ -320,12 +320,8 @@ export class TierListGameEngine {
     currentRound.averageValue = average;
     currentRound.finalTier = finalTier;
 
-    // Compute proximity scores for each voter
-    const roundScores = new Map<string, number>();
-    for (const [playerId, votedTier] of currentRound.votes) {
-      const score = computeProximityScore(votedTier, average);
-      roundScores.set(playerId, score);
-    }
+    // Compute round scores using scatter-weighted proximity scoring
+    const roundScores = computeRoundScores(currentRound.votes);
     currentRound.scores = roundScores;
 
     // Update cumulative scores

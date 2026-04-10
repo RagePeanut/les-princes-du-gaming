@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import { TierName } from '@shared/types';
-import { computeAverageAndTier, computeProximityScore, updateCumulativeScores } from './tierlist-scoring-engine';
+import { computeAverageAndTier, computeRoundScores, updateCumulativeScores } from './tierlist-scoring-engine';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -87,40 +87,60 @@ describe('Property 8: Average and tier conversion', () => {
   });
 });
 
-// ─── Property 9: Proximity score formula ─────────────────────────────────────
+// ─── Property 9: Scatter-weighted round scoring ──────────────────────────────
 /**
- * Feature: tier-list-voting-game, Property 9: Proximity score formula
+ * Feature: tier-list-voting-game, Property 9: Scatter-weighted round scoring
  *
  * **Validates: Requirements 7.1, 7.2, 7.3**
  *
- * For any tier vote and any average of votes, the proximity score SHALL equal
- * `5 - |vote_value - average|`, rounded to 2 decimal places.
- * The score SHALL always be between 0 and 5 (inclusive).
+ * For any set of tier votes, the round scores SHALL be computed as:
+ * 1. Convert tiers to 0-based indices (F=0, D=1, C=2, B=3, A=4, S=5)
+ * 2. average = round(mean of indices) (away from zero)
+ * 3. scatter = mean of |index - average| across all votes
+ * 4. Per player: nominalScore = max(0, 5 - |average - index| * 2)
+ *    finalScore = round(nominalScore * scatter) (away from zero)
+ *
+ * All scores SHALL be non-negative integers.
  */
-describe('Property 9: Proximity score formula', () => {
-  it('proximity score equals 5 - |vote_value - average|, rounded to 2 decimals, and is in [0, 5]', () => {
+
+const TIER_INDEX_ORDER: TierName[] = ['F', 'D', 'C', 'B', 'A', 'S'];
+
+function tierToIndex(tier: TierName): number {
+  return TIER_INDEX_ORDER.indexOf(tier);
+}
+
+function roundAwayFromZero(value: number): number {
+  return value >= 0 ? Math.round(value) : -Math.round(-value);
+}
+
+describe('Property 9: Scatter-weighted round scoring', () => {
+  it('round scores match the scatter-weighted formula and are non-negative integers', () => {
     fc.assert(
-      fc.property(
-        arbTier(),
-        fc.double({ min: 1.0, max: 6.0, noNaN: true, noDefaultInfinity: true }),
-        (votedTier: TierName, average: number) => {
-          const voteValue = TIER_TO_VALUE[votedTier];
+      fc.property(arbVotes(), (votes: Map<string, TierName>) => {
+        const scores = computeRoundScores(votes);
 
-          // --- Independently compute expected score ---
-          const expectedRaw = 5 - Math.abs(voteValue - average);
-          const expectedScore = Math.round(expectedRaw * 100) / 100;
+        // Independently compute expected scores
+        const entries = Array.from(votes.entries());
+        const indices = entries.map(([, tier]) => tierToIndex(tier));
+        const rawAvg = indices.reduce((s, v) => s + v, 0) / indices.length;
+        const avg = roundAwayFromZero(rawAvg);
+        const scatter = indices.map(i => Math.abs(i - avg)).reduce((s, v) => s + v, 0) / indices.length;
 
-          // --- Call the actual function ---
-          const actualScore = computeProximityScore(votedTier, average);
+        for (const [playerId, tier] of entries) {
+          const idx = tierToIndex(tier);
+          const variance = Math.abs(avg - idx);
+          const nominal = Math.max(0, 5 - variance * 2);
+          const expected = roundAwayFromZero(nominal * scatter);
 
-          // --- Verify formula correctness ---
-          expect(actualScore).toBeCloseTo(expectedScore, 2);
-
-          // --- Verify score is within [0, 5] ---
-          expect(actualScore).toBeGreaterThanOrEqual(0);
-          expect(actualScore).toBeLessThanOrEqual(5);
-        },
-      ),
+          const actual = scores.get(playerId);
+          expect(actual).toBeDefined();
+          expect(actual).toBe(expected);
+          // Scores must be non-negative
+          expect(actual!).toBeGreaterThanOrEqual(0);
+          // Scores must be integers (due to rounding)
+          expect(Number.isInteger(actual!)).toBe(true);
+        }
+      }),
       { numRuns: 100 },
     );
   });
@@ -132,30 +152,36 @@ describe('Property 9: Proximity score formula', () => {
  *
  * **Validates: Requirements 7.4**
  *
- * For any two players A and B in the same round, if the absolute distance
- * between A's vote and the average is strictly less than B's, then A's
- * proximity score SHALL be strictly greater than B's.
+ * For any two players in the same round, if player A's vote is strictly closer
+ * to the rounded average than player B's, then A's score SHALL be greater than
+ * or equal to B's score.
  */
 describe('Property 10: Scoring monotonicity', () => {
-  it('player closer to the average always gets a strictly higher proximity score', () => {
+  it('player closer to the average gets a score >= the farther player', () => {
     fc.assert(
-      fc.property(
-        arbTier(),
-        arbTier(),
-        fc.double({ min: 1.0, max: 6.0, noNaN: true, noDefaultInfinity: true }),
-        (tierA: TierName, tierB: TierName, average: number) => {
-          const distA = Math.abs(TIER_TO_VALUE[tierA] - average);
-          const distB = Math.abs(TIER_TO_VALUE[tierB] - average);
+      fc.property(arbVotes(), (votes: Map<string, TierName>) => {
+        const scores = computeRoundScores(votes);
+        const entries = Array.from(votes.entries());
+        const indices = entries.map(([, tier]) => tierToIndex(tier));
+        const rawAvg = indices.reduce((s, v) => s + v, 0) / indices.length;
+        const avg = roundAwayFromZero(rawAvg);
 
-          // Pre-condition: A is strictly closer to the average than B
-          fc.pre(distA < distB);
+        // Compare all pairs
+        for (let i = 0; i < entries.length; i++) {
+          for (let j = i + 1; j < entries.length; j++) {
+            const distI = Math.abs(tierToIndex(entries[i][1]) - avg);
+            const distJ = Math.abs(tierToIndex(entries[j][1]) - avg);
+            const scoreI = scores.get(entries[i][0])!;
+            const scoreJ = scores.get(entries[j][0])!;
 
-          const scoreA = computeProximityScore(tierA, average);
-          const scoreB = computeProximityScore(tierB, average);
-
-          expect(scoreA).toBeGreaterThan(scoreB);
-        },
-      ),
+            if (distI < distJ) {
+              expect(scoreI).toBeGreaterThanOrEqual(scoreJ);
+            } else if (distJ < distI) {
+              expect(scoreJ).toBeGreaterThanOrEqual(scoreI);
+            }
+          }
+        }
+      }),
       { numRuns: 100 },
     );
   });

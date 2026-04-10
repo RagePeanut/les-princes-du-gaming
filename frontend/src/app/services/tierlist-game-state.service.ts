@@ -133,7 +133,7 @@ export const TierListGameStateService = signalStore(
   withMethods((store) => {
     const ws = inject(WebSocketService);
     const sound = inject(SoundService);
-    const subscription = new Subscription();
+    let subscription = new Subscription();
 
     return {
       init(lobbyCode: string, currentPlayerId: string): void {
@@ -143,6 +143,7 @@ export const TierListGameStateService = signalStore(
 
       reset(): void {
         subscription.unsubscribe();
+        subscription = new Subscription();
         patchState(store, { ...initialState });
       },
 

@@ -18,7 +18,8 @@ function makePlayer(id: string, overrides: Partial<Player> = {}): Player {
   return {
     id,
     username: `user-${id}`,
-    avatarDataUri: `avatar-${id}`,
+    avatarHeadUrl: '',
+    avatarAccessoryUrl: null,
     socketId: `sock-${id}`,
     isHost: false,
     isConnected: true,

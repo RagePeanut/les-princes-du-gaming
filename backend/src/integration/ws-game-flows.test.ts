@@ -18,6 +18,9 @@ import { createRouter } from '../api/routes';
 import { CLIENT_MSG, SERVER_MSG, ServerMessage } from '@shared/ws-messages';
 import { Item } from '@shared/types';
 
+// Set env var required by avatar-generator before any test runs
+process.env.CLOUDFLARE_AVATAR_BASE_URL = 'https://test.r2.dev';
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function makeItems(count: number, category: string): Item[] {
@@ -211,7 +214,16 @@ describe('WebSocket game flows (integration)', () => {
     const avatarPromise = waitForMessage(ws, SERVER_MSG.AVATAR_ASSIGNED);
     send(ws, CLIENT_MSG.JOIN_LOBBY, { lobbyCode, username });
     const avatarMsg = await avatarPromise;
-    return (avatarMsg.payload as any).playerId;
+    const payload = avatarMsg.payload as any;
+    expect(typeof payload.playerId).toBe('string');
+    expect(typeof payload.avatarHeadUrl).toBe('string');
+    expect(payload.avatarHeadUrl).toMatch(/^https?:\/\/.+\/heads\/.+\.png$/);
+    expect(payload.avatarAccessoryUrl === null || typeof payload.avatarAccessoryUrl === 'string').toBe(true);
+    if (payload.avatarAccessoryUrl !== null) {
+      expect(payload.avatarAccessoryUrl).toMatch(/^https?:\/\/.+\/accessories\/.+\.png$/);
+    }
+    expect(payload).not.toHaveProperty('avatarDataUri');
+    return payload.playerId;
   }
 
   // ─── Test: Player join → lobby broadcast ────────────────────────────
@@ -392,6 +404,8 @@ describe('WebSocket game flows (integration)', () => {
 
     const ws2Reconnect = await createAndConnect();
     const reconnectMsg = waitForMessage(ws1, SERVER_MSG.PLAYER_RECONNECTED);
+    // Collect avatar messages sent to the reconnected player
+    const avatarMsgsPromise = collectMessages(ws2Reconnect, 500);
     // Rejoin with same username triggers reconnection
     send(ws2Reconnect, CLIENT_MSG.JOIN_LOBBY, { lobbyCode: code, username: 'Bob' });
     const recon = await reconnectMsg;
@@ -399,6 +413,22 @@ describe('WebSocket game flows (integration)', () => {
 
     // Player should be connected again
     expect(player2!.isConnected).toBe(true);
+
+    // Verify reconnected player receives AVATAR_ASSIGNED messages with new fields
+    const avatarMsgs = await avatarMsgsPromise;
+    const avatarAssigned = avatarMsgs.filter((m) => m.type === SERVER_MSG.AVATAR_ASSIGNED);
+    expect(avatarAssigned.length).toBeGreaterThanOrEqual(2); // Both Alice and Bob
+    for (const msg of avatarAssigned) {
+      const p = msg.payload as any;
+      expect(typeof p.playerId).toBe('string');
+      expect(typeof p.avatarHeadUrl).toBe('string');
+      expect(p.avatarHeadUrl).toMatch(/^https?:\/\/.+\/heads\/.+\.png$/);
+      expect(p.avatarAccessoryUrl === null || typeof p.avatarAccessoryUrl === 'string').toBe(true);
+      if (p.avatarAccessoryUrl !== null) {
+        expect(p.avatarAccessoryUrl).toMatch(/^https?:\/\/.+\/accessories\/.+\.png$/);
+      }
+      expect(p).not.toHaveProperty('avatarDataUri');
+    }
   });
 
   // ─── Test: Reconnection after grace period (player removed) ─────────
@@ -607,7 +637,16 @@ describe('Tier List WebSocket game flows (integration)', () => {
     const avatarPromise = waitForMessage(ws, SERVER_MSG.AVATAR_ASSIGNED);
     send(ws, CLIENT_MSG.JOIN_LOBBY, { lobbyCode, username });
     const avatarMsg = await avatarPromise;
-    return (avatarMsg.payload as any).playerId;
+    const payload = avatarMsg.payload as any;
+    expect(typeof payload.playerId).toBe('string');
+    expect(typeof payload.avatarHeadUrl).toBe('string');
+    expect(payload.avatarHeadUrl).toMatch(/^https?:\/\/.+\/heads\/.+\.png$/);
+    expect(payload.avatarAccessoryUrl === null || typeof payload.avatarAccessoryUrl === 'string').toBe(true);
+    if (payload.avatarAccessoryUrl !== null) {
+      expect(payload.avatarAccessoryUrl).toMatch(/^https?:\/\/.+\/accessories\/.+\.png$/);
+    }
+    expect(payload).not.toHaveProperty('avatarDataUri');
+    return payload.playerId;
   }
 
   // ─── Test: Full tier list game flow ─────────────────────────────────

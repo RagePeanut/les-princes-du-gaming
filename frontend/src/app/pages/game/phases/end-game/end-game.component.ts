@@ -3,7 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../../../components/card/card.component';
 import { PlayerAvatarComponent } from '../../../../components/player-avatar/player-avatar.component';
 import { GameStateService } from '../../../../services/game-state.service';
-import { AvatarService } from '../../../../services/avatar.service';
+import { AvatarService, type AvatarData } from '../../../../services/avatar.service';
 import type { LeaderboardEntry } from '@shared/ws-messages';
 
 @Component({
@@ -24,7 +24,7 @@ export class EndGameComponent {
 
   readonly showCountdown = computed(() => this.gameState.phase() === 'rematch_countdown');
 
-  getAvatar(playerId: string): string | undefined {
+  getAvatar(playerId: string): AvatarData | undefined {
     return this.avatarService.getAvatar(playerId);
   }
 

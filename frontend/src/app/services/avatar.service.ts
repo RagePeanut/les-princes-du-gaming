@@ -3,10 +3,15 @@ import { Subscription } from 'rxjs';
 import { WebSocketService } from './websocket.service';
 import { SERVER_MSG, type AvatarAssignedPayload } from '@shared/ws-messages';
 
+export interface AvatarData {
+  headUrl: string;
+  accessoryUrl: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AvatarService {
   private readonly ws = inject(WebSocketService);
-  private readonly cache = signal<Map<string, string>>(new Map());
+  private readonly cache = signal<Map<string, AvatarData>>(new Map());
   private subscription: Subscription | null = null;
 
   init(): void {
@@ -15,13 +20,16 @@ export class AvatarService {
       .subscribe((payload) => {
         this.cache.update((current) => {
           const updated = new Map(current);
-          updated.set(payload.playerId, payload.avatarDataUri);
+          updated.set(payload.playerId, {
+            headUrl: payload.avatarHeadUrl,
+            accessoryUrl: payload.avatarAccessoryUrl,
+          });
           return updated;
         });
       });
   }
 
-  getAvatar(playerId: string): string | undefined {
+  getAvatar(playerId: string): AvatarData | undefined {
     return this.cache().get(playerId);
   }
 

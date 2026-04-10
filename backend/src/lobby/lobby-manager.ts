@@ -149,7 +149,8 @@ export class LobbyManager {
     const player: Player = {
       id: uuidv4(),
       username,
-      avatarDataUri: avatarResult.dataUri,
+      avatarHeadUrl: avatarResult.headUrl,
+      avatarAccessoryUrl: avatarResult.accessoryUrl,
       socketId,
       isHost: isFirstPlayer,
       isConnected: true,

@@ -4,7 +4,7 @@ import { CardComponent } from '../../../../components/card/card.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { PlayerAvatarComponent } from '../../../../components/player-avatar/player-avatar.component';
 import { TierListGameStateService } from '../../../../services/tierlist-game-state.service';
-import { AvatarService } from '../../../../services/avatar.service';
+import { AvatarService, type AvatarData } from '../../../../services/avatar.service';
 import { TIER_COLORS } from '@shared/types';
 import type { TierName } from '@shared/types';
 import type { LeaderboardEntry } from '@shared/ws-messages';
@@ -68,7 +68,7 @@ export class TierlistEndGameComponent {
     return tier?.items.map(i => ({ id: i.id, displayName: i.displayName })) ?? [];
   }
 
-  getAvatar(playerId: string): string | undefined {
+  getAvatar(playerId: string): AvatarData | undefined {
     return this.avatarService.getAvatar(playerId);
   }
 }

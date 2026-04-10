@@ -1,27 +1,28 @@
 import * as fc from 'fast-check';
 import {
   generateAvatar,
-  keyToFeatures,
-  FACE_SHAPES,
-  SKIN_COLORS,
-  EYE_STYLES,
-  MOUTH_STYLES,
-  HAIR_STYLES,
-  HAIR_COLORS,
-  ACCESSORIES,
+  buildHeadUrl,
+  buildAccessoryUrl,
+  HEADS,
+  ACCESSORY_OPTIONS,
 } from './avatar-generator';
 
+// Set the required env var before any test runs
+beforeAll(() => {
+  process.env.CLOUDFLARE_AVATAR_BASE_URL = 'https://test.r2.dev';
+});
+
 /**
- * Feature: multiplayer-game-hub, Property 2: Avatar completeness
+ * Feature: cloudflare-avatar-system, Property 1: Avatar combination validity
  *
- * **Validates: Requirements 4.1**
+ * **Validates: Requirements 1.1, 1.2, 1.5**
  *
- * For any generated avatar, it SHALL contain all required facial feature layers:
- * face shape, skin color, eyes, mouth, hair (style and color), and accessories.
- * Each feature value SHALL be within its valid set of options.
+ * For any generated avatar, the combination key SHALL be in the format
+ * "{head}|{accessory}" where head is one of the 15 defined head names
+ * and accessory is one of the 3 defined accessory names or "none".
  */
-describe('Property 2: Avatar completeness', () => {
-  it('every generated avatar contains all required layers with values within valid sets', () => {
+describe('Property 1: Avatar combination validity', () => {
+  it('every generated avatar has a valid combination key with head in HEADS and accessory in ACCESSORY_OPTIONS', () => {
     fc.assert(
       fc.property(
         fc.constant(null),
@@ -29,89 +30,41 @@ describe('Property 2: Avatar completeness', () => {
           const usedCombinations = new Set<string>();
           const result = generateAvatar(usedCombinations);
 
-          // Parse the combination key back to features
-          const features = keyToFeatures(result.combinationKey);
+          // Combination key must contain exactly one pipe separator
+          const parts = result.combinationKey.split('|');
+          expect(parts).toHaveLength(2);
 
-          // Verify each feature index is within the valid range for its layer
-          expect(features.faceShape).toBeGreaterThanOrEqual(0);
-          expect(features.faceShape).toBeLessThan(FACE_SHAPES.length);
+          const [head, accessory] = parts;
 
-          expect(features.skinColor).toBeGreaterThanOrEqual(0);
-          expect(features.skinColor).toBeLessThan(SKIN_COLORS.length);
+          // Head must be one of the defined HEADS
+          expect(HEADS).toContain(head);
 
-          expect(features.eyes).toBeGreaterThanOrEqual(0);
-          expect(features.eyes).toBeLessThan(EYE_STYLES.length);
+          // Accessory must be one of the defined ACCESSORY_OPTIONS (includes "none")
+          expect(ACCESSORY_OPTIONS).toContain(accessory);
 
-          expect(features.mouth).toBeGreaterThanOrEqual(0);
-          expect(features.mouth).toBeLessThan(MOUTH_STYLES.length);
-
-          expect(features.hairStyle).toBeGreaterThanOrEqual(0);
-          expect(features.hairStyle).toBeLessThan(HAIR_STYLES.length);
-
-          expect(features.hairColor).toBeGreaterThanOrEqual(0);
-          expect(features.hairColor).toBeLessThan(HAIR_COLORS.length);
-
-          expect(features.accessory).toBeGreaterThanOrEqual(0);
-          expect(features.accessory).toBeLessThan(ACCESSORIES.length);
-
-          // Verify the SVG data URI is well-formed and contains expected SVG elements
-          expect(result.dataUri).toMatch(/^data:image\/svg\+xml;base64,/);
-
-          const base64 = result.dataUri.replace('data:image/svg+xml;base64,', '');
-          const svg = Buffer.from(base64, 'base64').toString('utf-8');
-
-          // Must be a valid SVG with proper structure
-          expect(svg).toContain('<svg');
-          expect(svg).toContain('</svg>');
-          expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
-
-          // Face shape layer (ellipse for the face)
-          expect(svg).toContain('<ellipse cx="50" cy="52"');
-
-          // Skin color layer (face fill uses a skin color)
-          const skinColor = SKIN_COLORS[features.skinColor];
-          expect(svg).toContain(`fill="${skinColor}"`);
-
-          // Eyes layer (rendered at cx=35 and cx=65)
-          expect(svg).toMatch(/cx="35" cy="45"/);
-          expect(svg).toMatch(/cx="65" cy="45"/);
-
-          // Mouth layer (rendered around cy=65)
-          // Mouth is either a path (smile), ellipse (open), or line
-          const mouthStyle = MOUTH_STYLES[features.mouth];
-          if (mouthStyle.type === 'smile') {
-            expect(svg).toContain('<path d="M');
-          } else if (mouthStyle.type === 'open') {
-            expect(svg).toMatch(/<ellipse cx="50" cy="65"/);
-          } else {
-            expect(svg).toContain('<line');
-          }
-
-          // Hair layer (path element with hair color)
-          const hairColor = HAIR_COLORS[features.hairColor];
-          expect(svg).toContain(`fill="${hairColor}"`);
-          expect(svg).toContain(`<path d="`);
+          // Combination key must match the expected format exactly
+          expect(result.combinationKey).toBe(`${head}|${accessory}`);
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 });
 
 /**
- * Feature: multiplayer-game-hub, Property 3: Avatar uniqueness
+ * Feature: cloudflare-avatar-system, Property 2: Avatar uniqueness within a lobby
  *
- * **Validates: Requirements 4.2**
+ * **Validates: Requirements 1.3, 8.1**
  *
- * For any lobby with N players (N ≤ 20), all N generated avatars SHALL have
- * distinct feature combinations (no two players share the same tuple of face
- * shape, skin color, eyes, mouth, hair style, hair color, and accessory).
+ * For any lobby with N players (N ≤ 60), all N generated avatars SHALL have
+ * distinct combination keys. The shared `usedCombinations` set SHALL contain
+ * exactly N entries after N generations.
  */
-describe('Property 3: Avatar uniqueness within a lobby', () => {
-  it('all N avatars in a lobby have distinct combination keys', () => {
+describe('Property 2: Avatar uniqueness within a lobby', () => {
+  it('all N generated avatars have distinct combination keys and usedCombinations size equals N', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 20 }),
+        fc.integer({ min: 1, max: 60 }),
         (n: number) => {
           const usedCombinations = new Set<string>();
           const keys: string[] = [];
@@ -121,15 +74,112 @@ describe('Property 3: Avatar uniqueness within a lobby', () => {
             keys.push(result.combinationKey);
           }
 
-          // All combination keys must be distinct
+          // All keys must be distinct
           const uniqueKeys = new Set(keys);
           expect(uniqueKeys.size).toBe(n);
 
-          // The shared usedCombinations set must have exactly N entries
+          // The shared usedCombinations set must contain exactly N entries
           expect(usedCombinations.size).toBe(n);
         }
       ),
-      { numRuns: 20 }
+      { numRuns: 100 }
+    );
+  });
+});
+
+/**
+ * Feature: cloudflare-avatar-system, Property 3: URL construction correctness
+ *
+ * **Validates: Requirements 2.2, 2.3, 2.4, 2.5**
+ *
+ * For any head/accessory from the valid sets, the head URL SHALL equal
+ * "{baseUrl}/heads/{encodeURIComponent(head)}.png" and the accessory URL
+ * SHALL equal "{baseUrl}/accessories/{encodeURIComponent(accessory)}.png"
+ * when accessory is not "none", or null when accessory is "none".
+ * Parsing the URLs back should recover the original names.
+ */
+describe('Property 3: URL construction correctness', () => {
+  const baseUrl = 'https://test.r2.dev';
+
+  it('buildHeadUrl produces correctly formatted and encoded URLs for any valid head', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...HEADS),
+        (head: string) => {
+          const url = buildHeadUrl(head);
+
+          // URL must match the expected format
+          const expected = `${baseUrl}/heads/${encodeURIComponent(head)}.png`;
+          expect(url).toBe(expected);
+
+          // Round-trip: decode the head name back from the URL
+          const pathPart = url.replace(`${baseUrl}/heads/`, '').replace('.png', '');
+          const decoded = decodeURIComponent(pathPart);
+          expect(decoded).toBe(head);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it('buildAccessoryUrl produces correctly formatted and encoded URLs for non-"none" accessories', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...ACCESSORY_OPTIONS.filter(a => a !== 'none')),
+        (accessory: string) => {
+          const url = buildAccessoryUrl(accessory);
+
+          // URL must not be null for real accessories
+          expect(url).not.toBeNull();
+
+          // URL must match the expected format
+          const expected = `${baseUrl}/accessories/${encodeURIComponent(accessory)}.png`;
+          expect(url).toBe(expected);
+
+          // Round-trip: decode the accessory name back from the URL
+          const pathPart = url!.replace(`${baseUrl}/accessories/`, '').replace('.png', '');
+          const decoded = decodeURIComponent(pathPart);
+          expect(decoded).toBe(accessory);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it('"none" accessory maps to null', () => {
+    fc.assert(
+      fc.property(
+        fc.constant('none'),
+        (accessory: string) => {
+          const url = buildAccessoryUrl(accessory);
+          expect(url).toBeNull();
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it('for any valid head/accessory pair, URL construction is consistent with combination key', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...HEADS),
+        fc.constantFrom(...ACCESSORY_OPTIONS),
+        (head: string, accessory: string) => {
+          const headUrl = buildHeadUrl(head);
+          const accessoryUrl = buildAccessoryUrl(accessory);
+
+          // Head URL always starts with baseUrl/heads/ and ends with .png
+          expect(headUrl).toMatch(/^https:\/\/test\.r2\.dev\/heads\/.+\.png$/);
+
+          if (accessory === 'none') {
+            expect(accessoryUrl).toBeNull();
+          } else {
+            // Accessory URL starts with baseUrl/accessories/ and ends with .png
+            expect(accessoryUrl).toMatch(/^https:\/\/test\.r2\.dev\/accessories\/.+\.png$/);
+          }
+        }
+      ),
+      { numRuns: 100 }
     );
   });
 });

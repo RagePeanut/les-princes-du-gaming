@@ -11,18 +11,38 @@
   flex-shrink: 0;
 }
 
-.avatar {
+.avatar-layers {
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 3px solid $primary-light;
-  object-fit: cover;
-  display: block;
+  overflow: visible;
 
   &--sm {
     width: 34px;
     height: 34px;
-    border-width: 2px;
+  }
+
+  &--no-accessory {
+    top: 4px;
+  }
+}
+
+.avatar-layer {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+
+  &--accessory {
+    z-index: 0;
+  }
+
+  &--head {
+    z-index: 1;
   }
 }
 
@@ -30,7 +50,6 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 3px solid $primary-light;
   background: color.adjust($primary-light, $lightness: 18%);
   display: flex;
   align-items: center;
@@ -42,7 +61,6 @@
   &--sm {
     width: 34px;
     height: 34px;
-    border-width: 2px;
     font-size: 0.9rem;
   }
 }

@@ -75,7 +75,8 @@ export function buildLeaderboard(
     entries.push({
       playerId,
       username: player.username,
-      avatarDataUri: player.avatarDataUri,
+      avatarHeadUrl: player.avatarHeadUrl,
+      avatarAccessoryUrl: player.avatarAccessoryUrl,
       totalScore,
       rank: 0, // assigned after sorting
     });

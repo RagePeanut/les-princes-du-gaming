@@ -32,7 +32,8 @@
               <div class="results__score-player">
                 <app-player-avatar
                   size="sm"
-                  [src]="getAvatar(ps.playerId)"
+                  [headSrc]="getAvatar(ps.playerId)?.headUrl"
+                  [accessorySrc]="getAvatar(ps.playerId)?.accessoryUrl"
                   [alt]="ps.username + ' avatar'"
                 />
                 <span class="results__score-username">{{ ps.username }}</span>
@@ -52,7 +53,8 @@
               <div class="results__lb-player">
                 <app-player-avatar
                   size="sm"
-                  [src]="getAvatar(entry.playerId)"
+                  [headSrc]="getAvatar(entry.playerId)?.headUrl"
+                  [accessorySrc]="getAvatar(entry.playerId)?.accessoryUrl"
                   [alt]="entry.username + ' avatar'"
                 />
                 <span class="results__lb-username">{{ entry.username }}</span>

@@ -33,9 +33,9 @@ function createMockGameState(overrides: Partial<Record<string, any>> = {}) {
 }
 
 const sampleLeaderboard: LeaderboardEntry[] = [
-  { playerId: 'p1', username: 'Alice', avatarDataUri: '', totalScore: 50, rank: 1 },
-  { playerId: 'p2', username: 'Bob', avatarDataUri: '', totalScore: 40, rank: 2 },
-  { playerId: 'p3', username: 'Charlie', avatarDataUri: '', totalScore: 30, rank: 3 },
+  { playerId: 'p1', username: 'Alice', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 50, rank: 1 },
+  { playerId: 'p2', username: 'Bob', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 40, rank: 2 },
+  { playerId: 'p3', username: 'Charlie', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 30, rank: 3 },
 ];
 
 describe('EndGameComponent', () => {
@@ -82,9 +82,9 @@ describe('EndGameComponent', () => {
 
     it('should display leaderboard sorted by totalScore descending', () => {
       const unsorted: LeaderboardEntry[] = [
-        { playerId: 'p3', username: 'Charlie', avatarDataUri: '', totalScore: 30, rank: 3 },
-        { playerId: 'p1', username: 'Alice', avatarDataUri: '', totalScore: 50, rank: 1 },
-        { playerId: 'p2', username: 'Bob', avatarDataUri: '', totalScore: 40, rank: 2 },
+        { playerId: 'p3', username: 'Charlie', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 30, rank: 3 },
+        { playerId: 'p1', username: 'Alice', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 50, rank: 1 },
+        { playerId: 'p2', username: 'Bob', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 40, rank: 2 },
       ];
       const { fixture } = setup({ leaderboard: unsorted });
       const el: HTMLElement = fixture.nativeElement;
@@ -147,9 +147,9 @@ describe('EndGameComponent', () => {
 
     it('should highlight multiple winners when tied', () => {
       const tiedLeaderboard: LeaderboardEntry[] = [
-        { playerId: 'p1', username: 'Alice', avatarDataUri: '', totalScore: 50, rank: 1 },
-        { playerId: 'p2', username: 'Bob', avatarDataUri: '', totalScore: 50, rank: 1 },
-        { playerId: 'p3', username: 'Charlie', avatarDataUri: '', totalScore: 30, rank: 3 },
+        { playerId: 'p1', username: 'Alice', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 50, rank: 1 },
+        { playerId: 'p2', username: 'Bob', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 50, rank: 1 },
+        { playerId: 'p3', username: 'Charlie', avatarHeadUrl: '', avatarAccessoryUrl: null, totalScore: 30, rank: 3 },
       ];
       const { fixture } = setup({ leaderboard: tiedLeaderboard, isTie: true });
       const el: HTMLElement = fixture.nativeElement;

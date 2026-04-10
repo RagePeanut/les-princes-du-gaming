@@ -65,7 +65,7 @@ export class TierlistLobbyComponent {
     } catch { /* fallback */ }
   }
 
-  getAvatar(playerId: string): string | undefined {
+  getAvatar(playerId: string): { headUrl: string; accessoryUrl: string | null } | undefined {
     return this.avatarService.getAvatar(playerId);
   }
 }

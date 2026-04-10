@@ -218,7 +218,8 @@ export class GameEngine {
         playerScores.push({
           playerId,
           username: player.username,
-          avatarDataUri: player.avatarDataUri,
+          avatarHeadUrl: player.avatarHeadUrl,
+          avatarAccessoryUrl: player.avatarAccessoryUrl,
           score,
         });
       }

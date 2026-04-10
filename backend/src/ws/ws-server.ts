@@ -198,15 +198,15 @@ export class GameWebSocketServer {
       // Broadcast avatar assignment to ALL players in the lobby
       this.broadcastToLobby(lobbyCode, {
         type: SERVER_MSG.AVATAR_ASSIGNED,
-        payload: { playerId: player.id, avatarDataUri: player.avatarDataUri },
+        payload: { playerId: player.id, avatarHeadUrl: player.avatarHeadUrl, avatarAccessoryUrl: player.avatarAccessoryUrl },
       });
 
       // Send all existing players' avatars to the new joiner
       for (const [, existingPlayer] of lobby.players) {
-        if (existingPlayer.id !== player.id && existingPlayer.avatarDataUri) {
+        if (existingPlayer.id !== player.id && existingPlayer.avatarHeadUrl) {
           this.sendTo(ws, {
             type: SERVER_MSG.AVATAR_ASSIGNED,
-            payload: { playerId: existingPlayer.id, avatarDataUri: existingPlayer.avatarDataUri },
+            payload: { playerId: existingPlayer.id, avatarHeadUrl: existingPlayer.avatarHeadUrl, avatarAccessoryUrl: existingPlayer.avatarAccessoryUrl },
           });
         }
       }
@@ -453,10 +453,10 @@ export class GameWebSocketServer {
 
     // Send all players' avatars to the reconnected player
     for (const [, p] of lobby.players) {
-      if (p.avatarDataUri) {
+      if (p.avatarHeadUrl) {
         this.sendTo(ws, {
           type: SERVER_MSG.AVATAR_ASSIGNED,
-          payload: { playerId: p.id, avatarDataUri: p.avatarDataUri },
+          payload: { playerId: p.id, avatarHeadUrl: p.avatarHeadUrl, avatarAccessoryUrl: p.avatarAccessoryUrl },
         });
       }
     }

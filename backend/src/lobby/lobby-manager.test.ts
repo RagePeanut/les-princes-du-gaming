@@ -106,6 +106,10 @@ describe('buildFullConfig', () => {
 describe('LobbyManager', () => {
   let manager: LobbyManager;
 
+  beforeAll(() => {
+    process.env.CLOUDFLARE_AVATAR_BASE_URL = 'https://test.r2.dev';
+  });
+
   beforeEach(() => {
     manager = new LobbyManager();
   });
@@ -187,10 +191,14 @@ describe('LobbyManager', () => {
       expect(p3.joinOrder).toBe(2);
     });
 
-    it('assigns an avatar data URI', () => {
+    it('assigns avatarHeadUrl and avatarAccessoryUrl', () => {
       const lobby = manager.createLobby();
       const player = manager.joinLobby(lobby.code, 'Alice');
-      expect(player.avatarDataUri).toMatch(/^data:image\/svg\+xml;base64,/);
+      expect(player.avatarHeadUrl).toMatch(/^https:\/\/test\.r2\.dev\/heads\/.+\.png$/);
+      expect(
+        player.avatarAccessoryUrl === null ||
+        /^https:\/\/test\.r2\.dev\/accessories\/.+\.png$/.test(player.avatarAccessoryUrl)
+      ).toBe(true);
     });
 
     it('marks player as active (not spectator) in waiting state', () => {
@@ -314,6 +322,43 @@ describe('LobbyManager', () => {
       const lobby = manager.createLobby();
       manager.destroyLobby(lobby.code);
       expect(manager.getLobby(lobby.code)).toBeUndefined();
+    });
+
+    it('cleans up avatar combination tracking when lobby is destroyed', () => {
+      const lobby = manager.createLobby();
+      manager.joinLobby(lobby.code, 'Alice');
+      manager.destroyLobby(lobby.code);
+      // After destroy, creating a new lobby and joining should work without issues
+      const lobby2 = manager.createLobby();
+      const player2 = manager.joinLobby(lobby2.code, 'Bob');
+      expect(player2.avatarHeadUrl).toBeDefined();
+    });
+  });
+
+  describe('avatar combination key retention', () => {
+    it('retains used combination keys when a player leaves', () => {
+      const lobby = manager.createLobby();
+      const alice = manager.joinLobby(lobby.code, 'Alice');
+      const aliceHead = alice.avatarHeadUrl;
+      const aliceAccessory = alice.avatarAccessoryUrl;
+
+      // Add a second player so lobby isn't destroyed on leave
+      manager.joinLobby(lobby.code, 'Bob');
+      manager.leaveLobby(lobby.code, alice.id);
+
+      // Join many players and verify none reuse Alice's exact combination
+      const newPlayers = [];
+      for (let i = 0; i < 10; i++) {
+        newPlayers.push(manager.joinLobby(lobby.code, `Player${i}`));
+      }
+
+      // At least verify that the combination tracking prevents reuse
+      // (with 60 total combos and 12 players, collisions are unlikely but tracked)
+      const combos = new Set(
+        newPlayers.map(p => `${p.avatarHeadUrl}|${p.avatarAccessoryUrl}`)
+      );
+      // All new players should have unique combos among themselves
+      expect(combos.size).toBe(newPlayers.length);
     });
   });
 

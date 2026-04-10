@@ -46,14 +46,16 @@ export const SERVER_MSG = {
 export interface PlayerScore {
   playerId: string;
   username: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
   score: number;
 }
 
 export interface LeaderboardEntry {
   playerId: string;
   username: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
   totalScore: number;
   rank: number;
 }
@@ -100,14 +102,16 @@ export interface SubmitTierVotePayload {
 export interface PlayerTierVote {
   playerId: string;
   username: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
   votedTier: TierName;
 }
 
 export interface PlayerProximityScore {
   playerId: string;
   username: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
   score: number;
 }
 
@@ -183,7 +187,8 @@ export interface ErrorPayload {
 
 export interface AvatarAssignedPayload {
   playerId: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
 }
 
 // ─── Tier List Server → Client Payloads ─────────────────────────────────────

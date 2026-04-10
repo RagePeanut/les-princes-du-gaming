@@ -5,13 +5,21 @@ import { Component, input } from '@angular/core';
   standalone: true,
   template: `
     <div class="avatar-wrapper">
-      @if (src()) {
-        <img
-          class="avatar"
-          [class.avatar--sm]="size() === 'sm'"
-          [src]="src()"
-          [alt]="alt()"
-        />
+      @if (headSrc()) {
+        <div class="avatar-layers" [class.avatar-layers--sm]="size() === 'sm'" [class.avatar-layers--no-accessory]="!accessorySrc()">
+          @if (accessorySrc()) {
+            <img
+              class="avatar-layer avatar-layer--accessory"
+              [src]="accessorySrc()"
+              alt=""
+            />
+          }
+          <img
+            class="avatar-layer avatar-layer--head"
+            [src]="headSrc()"
+            [alt]="alt()"
+          />
+        </div>
       } @else {
         <div
           class="avatar-placeholder"
@@ -28,7 +36,8 @@ import { Component, input } from '@angular/core';
   styleUrl: './player-avatar.component.scss',
 })
 export class PlayerAvatarComponent {
-  readonly src = input<string | undefined>();
+  readonly headSrc = input<string | undefined>();
+  readonly accessorySrc = input<string | null | undefined>();
   readonly alt = input('avatar');
   readonly fallback = input('?');
   readonly showCrown = input(false);

@@ -1,8 +1,13 @@
 // Main server entry point
 // Wires Express app + WebSocket server on the same HTTP server
 
+import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
+
+// Load .env from the backend directory regardless of cwd
+// At runtime __dirname is backend/dist/backend/src, so go up 3 levels to reach backend/
+dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '.env') });
 import express from 'express';
 import { LobbyManager } from './lobby/lobby-manager';
 import { GameEngine, GameEngineCallbacks } from './game/game-engine';

@@ -94,7 +94,8 @@
       <div class="gameplay__player" [class.gameplay__player--voted]="hasVoted(player.id)">
         <app-player-avatar
           size="sm"
-          [src]="getAvatar(player.id)"
+          [headSrc]="getAvatar(player.id)?.headUrl"
+          [accessorySrc]="getAvatar(player.id)?.accessoryUrl"
           [alt]="player.username + ' avatar'"
         />
         <span class="gameplay__player-name">{{ player.username }}</span>

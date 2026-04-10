@@ -254,7 +254,8 @@ describe('Property 12: Leaderboard sorting', () => {
           players.set(id, {
             id,
             username: `User${i}`,
-            avatarDataUri: `avatar-${i}`,
+            avatarHeadUrl: '',
+            avatarAccessoryUrl: null,
             socketId: `socket-${i}`,
             isHost: i === 0,
             isConnected: true,

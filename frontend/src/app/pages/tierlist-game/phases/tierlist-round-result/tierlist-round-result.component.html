@@ -39,7 +39,8 @@
             <div class="tier-row__voter">
               <app-player-avatar
                 size="sm"
-                [src]="getAvatar(vote.playerId)"
+                [headSrc]="getAvatar(vote.playerId)?.headUrl"
+                [accessorySrc]="getAvatar(vote.playerId)?.accessoryUrl"
                 [alt]="vote.username + ' avatar'"
               />
               <span class="tier-row__voter-name">{{ vote.username }}</span>
@@ -59,7 +60,8 @@
             <div class="score-list__player">
               <app-player-avatar
                 size="sm"
-                [src]="getAvatar(ps.playerId)"
+                [headSrc]="getAvatar(ps.playerId)?.headUrl"
+                [accessorySrc]="getAvatar(ps.playerId)?.accessoryUrl"
                 [alt]="ps.username + ' avatar'"
               />
               <span class="score-list__username">{{ ps.username }}</span>
@@ -79,7 +81,8 @@
             <div class="leaderboard__player">
               <app-player-avatar
                 size="sm"
-                [src]="getAvatar(entry.playerId)"
+                [headSrc]="getAvatar(entry.playerId)?.headUrl"
+                [accessorySrc]="getAvatar(entry.playerId)?.accessoryUrl"
                 [alt]="entry.username + ' avatar'"
               />
               <span class="leaderboard__username">{{ entry.username }}</span>

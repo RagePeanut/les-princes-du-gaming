@@ -4,7 +4,8 @@
 export interface Player {
   id: string;
   username: string;
-  avatarDataUri: string;
+  avatarHeadUrl: string;
+  avatarAccessoryUrl: string | null;
   socketId: string;
   isHost: boolean;
   isConnected: boolean;

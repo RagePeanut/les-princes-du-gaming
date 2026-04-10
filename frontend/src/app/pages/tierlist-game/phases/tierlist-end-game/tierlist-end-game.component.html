@@ -48,7 +48,8 @@
             <div class="end-game__lb-player">
               <app-player-avatar
                 size="sm"
-                [src]="getAvatar(entry.playerId)"
+                [headSrc]="getAvatar(entry.playerId)?.headUrl"
+                [accessorySrc]="getAvatar(entry.playerId)?.accessoryUrl"
                 [alt]="entry.username + ' avatar'"
                 [fallback]="entry.username.charAt(0).toUpperCase()"
               />

@@ -188,9 +188,9 @@ describe('GameComponent', () => {
 
   describe('Task 12.2: Lobby phase view', () => {
     const mockPlayers = [
-      { id: 'p1', username: 'Alice', isHost: true, isSpectator: false, isConnected: true, hasCrown: false, avatarDataUri: '', socketId: '', joinOrder: 0 },
-      { id: 'p2', username: 'Bob', isHost: false, isSpectator: false, isConnected: true, hasCrown: false, avatarDataUri: '', socketId: '', joinOrder: 1 },
-      { id: 'p3', username: 'Charlie', isHost: false, isSpectator: true, isConnected: true, hasCrown: true, avatarDataUri: '', socketId: '', joinOrder: 2 },
+      { id: 'p1', username: 'Alice', isHost: true, isSpectator: false, isConnected: true, hasCrown: false, avatarHeadUrl: '', avatarAccessoryUrl: null, socketId: '', joinOrder: 0 },
+      { id: 'p2', username: 'Bob', isHost: false, isSpectator: false, isConnected: true, hasCrown: false, avatarHeadUrl: '', avatarAccessoryUrl: null, socketId: '', joinOrder: 1 },
+      { id: 'p3', username: 'Charlie', isHost: false, isSpectator: true, isConnected: true, hasCrown: true, avatarHeadUrl: '', avatarAccessoryUrl: null, socketId: '', joinOrder: 2 },
     ];
 
     it('should show settings panel for host', () => {
@@ -444,8 +444,8 @@ describe('Property 15: Game page renders correct view for lobby state', () => {
       rematchCountdown: 15,
       leaderboard: [],
       players: [
-        { id: 'p1', username: 'Alice', isHost: true, isSpectator: false, isConnected: true, hasCrown: false, avatarDataUri: '', socketId: '', joinOrder: 0 },
-        { id: 'p2', username: 'Bob', isHost: false, isSpectator: false, isConnected: true, hasCrown: false, avatarDataUri: '', socketId: '', joinOrder: 1 },
+        { id: 'p1', username: 'Alice', isHost: true, isSpectator: false, isConnected: true, hasCrown: false, avatarHeadUrl: '', avatarAccessoryUrl: null, socketId: '', joinOrder: 0 },
+        { id: 'p2', username: 'Bob', isHost: false, isSpectator: false, isConnected: true, hasCrown: false, avatarHeadUrl: '', avatarAccessoryUrl: null, socketId: '', joinOrder: 1 },
       ],
       hostId: 'p1',
       isHost: false,

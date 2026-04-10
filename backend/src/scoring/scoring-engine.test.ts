@@ -10,7 +10,8 @@ function makePlayer(id: string, username: string): Player {
   return {
     id,
     username,
-    avatarDataUri: `avatar-${id}`,
+    avatarHeadUrl: '',
+    avatarAccessoryUrl: null,
     socketId: `socket-${id}`,
     isHost: false,
     isConnected: true,
@@ -228,7 +229,8 @@ describe('ScoringEngine', () => {
       expect(leaderboard[0]).toEqual({
         playerId: 'p1',
         username: 'Alice',
-        avatarDataUri: 'avatar-p1',
+        avatarHeadUrl: '',
+        avatarAccessoryUrl: null,
         totalScore: 15,
         rank: 1,
       });

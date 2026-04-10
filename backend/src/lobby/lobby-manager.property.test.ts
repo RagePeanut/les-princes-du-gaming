@@ -8,6 +8,9 @@ import {
 } from './lobby-manager';
 import { LobbyState } from '@shared/types';
 
+// Set env var required by avatar-generator
+process.env.CLOUDFLARE_AVATAR_BASE_URL = 'https://test.r2.dev';
+
 // ─── Property 1: GameConfig validation accepts valid ranges and rejects invalid ranges ──
 /**
  * Feature: multiplayer-game-hub, Property 1: GameConfig validation
@@ -105,6 +108,13 @@ describe('Property 13: Spectator assignment based on join timing', () => {
 
           const player = manager.joinLobby(lobby.code, username);
 
+          // Verify avatar URL fields are present (Req 8.1, 9.3)
+          expect(player.avatarHeadUrl).toBeDefined();
+          expect(typeof player.avatarHeadUrl).toBe('string');
+          expect(player.avatarHeadUrl).toContain('https://test.r2.dev/heads/');
+          expect(player.avatarAccessoryUrl === null || typeof player.avatarAccessoryUrl === 'string').toBe(true);
+          expect((player as any).avatarDataUri).toBeUndefined();
+
           if (state === 'waiting') {
             expect(player.isSpectator).toBe(false);
           } else {
@@ -143,7 +153,13 @@ describe('Property 14: Host reassignment follows join order', () => {
           // Join N players
           const players = [];
           for (let i = 0; i < numPlayers; i++) {
-            players.push(manager.joinLobby(lobby.code, `Player${i}`));
+            const p = manager.joinLobby(lobby.code, `Player${i}`);
+            // Verify avatar URL fields (Req 8.1, 9.3)
+            expect(p.avatarHeadUrl).toBeDefined();
+            expect(p.avatarHeadUrl).toContain('https://test.r2.dev/heads/');
+            expect(p.avatarAccessoryUrl === null || typeof p.avatarAccessoryUrl === 'string').toBe(true);
+            expect((p as any).avatarDataUri).toBeUndefined();
+            players.push(p);
           }
 
           // Set lobby state to test that it remains unchanged

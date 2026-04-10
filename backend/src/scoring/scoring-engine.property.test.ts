@@ -37,7 +37,8 @@ function makePlayer(id: string, username: string): Player {
   return {
     id,
     username,
-    avatarDataUri: `avatar-${id}`,
+    avatarHeadUrl: '',
+    avatarAccessoryUrl: null,
     socketId: `socket-${id}`,
     isHost: false,
     isConnected: true,

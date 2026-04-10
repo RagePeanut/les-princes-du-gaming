@@ -310,7 +310,8 @@ export class TierListGameEngine {
         votes.push({
           playerId,
           username: player.username,
-          avatarDataUri: player.avatarDataUri,
+          avatarHeadUrl: player.avatarHeadUrl,
+          avatarAccessoryUrl: player.avatarAccessoryUrl,
           votedTier,
         });
       }
@@ -324,7 +325,8 @@ export class TierListGameEngine {
         scores.push({
           playerId,
           username: player.username,
-          avatarDataUri: player.avatarDataUri,
+          avatarHeadUrl: player.avatarHeadUrl,
+          avatarAccessoryUrl: player.avatarAccessoryUrl,
           score,
         });
       }

@@ -27,7 +27,7 @@ export class RoundResultsComponent {
     });
   }
 
-  getAvatar(playerId: string): string | undefined {
+  getAvatar(playerId: string) {
     return this.avatarService.getAvatar(playerId);
   }
 }

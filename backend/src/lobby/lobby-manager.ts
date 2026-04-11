@@ -235,6 +235,39 @@ export class LobbyManager {
   }
 
   /**
+   * Rerolls a player's avatar to a new unique combination.
+   * Removes the old combination from the used set and generates a new one.
+   */
+  rerollAvatar(code: string, playerId: string): Player {
+    const lobby = this.lobbies.get(code);
+    if (!lobby) {
+      throw new Error('Lobby not found');
+    }
+
+    const player = lobby.players.get(playerId);
+    if (!player) {
+      throw new Error('Player not found in lobby');
+    }
+
+    const usedCombinations = this.usedAvatarCombinations.get(code)!;
+
+    // Remove old combination from used set
+    const oldHead = decodeURIComponent(player.avatarHeadUrl.split('/heads/')[1]?.replace('.png', '') ?? '');
+    const oldAccessory = player.avatarAccessoryUrl
+      ? decodeURIComponent(player.avatarAccessoryUrl.split('/accessories/')[1]?.replace('.png', '') ?? '')
+      : 'none';
+    const oldKey = `${oldHead}|${oldAccessory}`;
+    usedCombinations.delete(oldKey);
+
+    // Generate new avatar
+    const avatarResult = generateAvatar(usedCombinations);
+    player.avatarHeadUrl = avatarResult.headUrl;
+    player.avatarAccessoryUrl = avatarResult.accessoryUrl;
+
+    return player;
+  }
+
+  /**
    * Updates lobby config. Only the host can update config.
    * Validates the partial config before applying.
    */

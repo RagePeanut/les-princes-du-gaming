@@ -45,7 +45,8 @@
     "hostBadge": "Host",
     "spectatorBadge": "Spectator",
     "disconnectedBadge": "Disconnected",
-    "waitingForHost": "⏳ Waiting for host to start the game..."
+    "waitingForHost": "⏳ Waiting for host to start the game...",
+    "rerollAvatar": "Click to change avatar"
   },
   "gameplay": {
     "round": "Round {{current}} of {{total}}",
@@ -119,7 +120,8 @@
       "confirm": "✅ Confirm vote",
       "waiting": "Waiting for other players...",
       "spectating": "Spectating",
-      "timerExpired": "Time's up!"
+      "timerExpired": "Time's up!",
+      "skipCategory": "⏭️ Skip category"
     },
     "suspense": {
       "title": "🥁 Suspense...",
@@ -132,7 +134,8 @@
       "playerVotes": "Player Votes",
       "scores": "Round Scores",
       "leaderboard": "🏆 Leaderboard",
-      "nextRound": "➡️ Next Round"
+      "nextRound": "➡️ Next Round",
+      "seeResults": "🏆 See Results"
     },
     "endGame": {
       "title": "🏆 Game Over!",

@@ -74,4 +74,12 @@ export class TierlistLobbyComponent {
   getAvatar(playerId: string): { headUrl: string; accessoryUrl: string | null } | undefined {
     return this.avatarService.getAvatar(playerId);
   }
+
+  rerollAvatar(): void {
+    this.sound.play('settingChange');
+    this.ws.send({
+      type: CLIENT_MSG.REROLL_AVATAR,
+      payload: { lobbyCode: this.gameState.lobbyCode() ?? '' },
+    });
+  }
 }

@@ -163,6 +163,12 @@ export class GameWebSocketServer {
       case CLIENT_MSG.SUBMIT_TIER_VOTE:
         this.handleSubmitTierVote(ws, msg.payload);
         break;
+      case CLIENT_MSG.SKIP_CATEGORY:
+        this.handleSkipCategory(ws, msg.payload);
+        break;
+      case CLIENT_MSG.REROLL_AVATAR:
+        this.handleRerollAvatar(ws, msg.payload);
+        break;
       default:
         this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Unknown message type.' } });
     }
@@ -405,6 +411,82 @@ export class GameWebSocketServer {
     } else {
       this.gameEngine.nextRound(lobby);
     }
+  }
+
+  // ─── REROLL_AVATAR ────────────────────────────────────────────────
+
+  private handleRerollAvatar(ws: WebSocket, payload: { lobbyCode: string }): void {
+    const meta = this.socketMeta.get(ws);
+    if (!meta) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not connected to a lobby.' } });
+      return;
+    }
+
+    const lobby = this.lobbyManager.getLobby(payload.lobbyCode);
+    if (!lobby) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Lobby not found.' } });
+      return;
+    }
+
+    if (meta.lobbyCode !== payload.lobbyCode) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not a member of this lobby.' } });
+      return;
+    }
+
+    // Only allow reroll in the waiting (lobby) state
+    if (lobby.state !== 'waiting') {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Can only change avatar in the lobby.' } });
+      return;
+    }
+
+    try {
+      const player = this.lobbyManager.rerollAvatar(payload.lobbyCode, meta.playerId);
+
+      // Broadcast the new avatar to all players
+      this.broadcastToLobby(payload.lobbyCode, {
+        type: SERVER_MSG.AVATAR_ASSIGNED,
+        payload: {
+          playerId: player.id,
+          avatarHeadUrl: player.avatarHeadUrl,
+          avatarAccessoryUrl: player.avatarAccessoryUrl,
+        },
+      });
+    } catch (err: any) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: err.message } });
+    }
+  }
+
+  // ─── SKIP_CATEGORY ────────────────────────────────────────────────
+
+  private handleSkipCategory(ws: WebSocket, payload: { lobbyCode: string }): void {
+    const meta = this.socketMeta.get(ws);
+    if (!meta) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not connected to a lobby.' } });
+      return;
+    }
+
+    const lobby = this.lobbyManager.getLobby(payload.lobbyCode);
+    if (!lobby) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Lobby not found.' } });
+      return;
+    }
+
+    if (meta.lobbyCode !== payload.lobbyCode) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Not a member of this lobby.' } });
+      return;
+    }
+
+    if (lobby.hostId !== meta.playerId) {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Only the host can skip the category.' } });
+      return;
+    }
+
+    if (lobby.gameType !== 'tierlist') {
+      this.sendTo(ws, { type: SERVER_MSG.ERROR, payload: { message: 'Skip category is only available in tier list mode.' } });
+      return;
+    }
+
+    this.tierListEngine.skipCategory(lobby);
   }
 
   // ─── Disconnect / Reconnect ─────────────────────────────────────────

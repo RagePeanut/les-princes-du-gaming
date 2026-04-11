@@ -12,6 +12,11 @@
       <span class="gameplay__timer-icon">⏱️</span>
       <span class="gameplay__timer-value">{{ gameState.timerSeconds() }}s</span>
     </div>
+    @if (gameState.isHost() && !gameState.isSpectator()) {
+      <button class="gameplay__skip-btn" (click)="skipCategory()" [attr.aria-label]="'tierlist.gameplay.skipCategory' | translate">
+        {{ 'tierlist.gameplay.skipCategory' | translate }}
+      </button>
+    }
   </header>
 
   <!-- Source area: item lives here until dragged into a tier -->

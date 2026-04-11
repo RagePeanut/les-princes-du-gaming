@@ -45,7 +45,8 @@
     "hostBadge": "Hôte",
     "spectatorBadge": "Spectateur",
     "disconnectedBadge": "Déconnecté",
-    "waitingForHost": "⏳ En attente du lancement par l'hôte..."
+    "waitingForHost": "⏳ En attente du lancement par l'hôte...",
+    "rerollAvatar": "Cliquer pour changer d'avatar"
   },
   "gameplay": {
     "round": "Manche {{current}} sur {{total}}",
@@ -119,7 +120,8 @@
       "confirm": "✅ Confirmer le vote",
       "waiting": "En attente des autres joueurs...",
       "spectating": "Mode spectateur",
-      "timerExpired": "Temps écoulé !"
+      "timerExpired": "Temps écoulé !",
+      "skipCategory": "⏭️ Passer la catégorie"
     },
     "suspense": {
       "title": "🥁 Suspense...",
@@ -132,7 +134,8 @@
       "playerVotes": "Votes des joueurs",
       "scores": "Scores de la manche",
       "leaderboard": "🏆 Classement",
-      "nextRound": "➡️ Manche suivante"
+      "nextRound": "➡️ Manche suivante",
+      "seeResults": "🏆 Voir les résultats"
     },
     "endGame": {
       "title": "🏆 Fin de partie !",

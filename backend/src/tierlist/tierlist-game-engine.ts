@@ -393,10 +393,29 @@ export class TierListGameEngine {
         // Check if this was the last round
         const isLastRound = session.currentRound >= session.totalRounds - 1;
 
+        // Always show round_results phase first, even for the last round
+        lobby.state = 'round_results';
+
         if (isLastRound) {
-          this.endGame(lobby);
+          // For the last round, transition to end game after a delay
+          // so players can see the final round result
+          const endGameDelay = lobby.config.timeBetweenRounds >= 0
+            ? Math.max(lobby.config.timeBetweenRounds, 5)
+            : -1; // -1 means host must manually advance
+
+          if (endGameDelay >= 0) {
+            const endGameTimerKey = `betweenRounds:${lobby.code}`;
+            startTimer(
+              endGameTimerKey,
+              endGameDelay,
+              () => {},
+              () => {
+                this.endGame(lobby);
+              },
+            );
+          }
+          // When timeBetweenRounds === -1, host advances via NEXT_ROUND which will trigger endGame
         } else {
-          lobby.state = 'round_results';
           session.currentRound += 1;
 
           // Auto-advance to next round after configured delay
@@ -476,7 +495,37 @@ export class TierListGameEngine {
    */
   nextRound(lobby: Lobby): void {
     if (lobby.state !== 'round_results') return;
-    this.startRound(lobby);
+
+    const session = lobby.tierListSession;
+    if (!session) return;
+
+    // If this was the last round, transition to end game
+    const isLastRound = session.currentRound >= session.totalRounds - 1;
+    if (isLastRound) {
+      stopTimer(`betweenRounds:${lobby.code}`);
+      this.endGame(lobby);
+    } else {
+      this.startRound(lobby);
+    }
+  }
+
+  /**
+   * Skip the current category and restart with a new random one (host only).
+   * Stops all active timers and starts a fresh game session.
+   */
+  skipCategory(lobby: Lobby): void {
+    if (!lobby.tierListSession) return;
+
+    // Stop all active timers for this lobby
+    stopTimer(lobby.code);
+    stopTimer(`suspense:${lobby.code}`);
+    stopTimer(`betweenRounds:${lobby.code}`);
+    stopTimer(`roulette:${lobby.code}`);
+    stopTimer(`rouletteEnd:${lobby.code}`);
+
+    // Clear session and restart the game with a new category
+    lobby.tierListSession = null;
+    this.startGame(lobby);
   }
 
   /**

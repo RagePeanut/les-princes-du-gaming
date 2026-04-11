@@ -14,6 +14,7 @@ import { AvatarService, type AvatarData } from '../../../../services/avatar.serv
 import { SoundService } from '../../../../services/sound.service';
 import { TIER_COLORS } from '@shared/types';
 import type { TierName } from '@shared/types';
+import { CLIENT_MSG } from '@shared/ws-messages';
 
 interface TierRow {
   name: TierName;
@@ -112,5 +113,12 @@ export class TierlistGameplayComponent {
 
   openZoom(src: string, itemId: string): void {
     this.imageZoom().open(src, this.translate.instant('items.' + itemId));
+  }
+
+  skipCategory(): void {
+    this.ws.send({
+      type: CLIENT_MSG.SKIP_CATEGORY,
+      payload: { lobbyCode: this.gameState.lobbyCode() ?? '' },
+    });
   }
 }

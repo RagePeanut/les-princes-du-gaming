@@ -14,6 +14,8 @@ export const CLIENT_MSG = {
   UPDATE_CONFIG: 'UPDATE_CONFIG',
   NEXT_ROUND: 'NEXT_ROUND',
   SUBMIT_TIER_VOTE: 'SUBMIT_TIER_VOTE',
+  SKIP_CATEGORY: 'SKIP_CATEGORY',
+  REROLL_AVATAR: 'REROLL_AVATAR',
 } as const;
 
 // Server → Client
@@ -95,6 +97,14 @@ export interface SubmitTierVotePayload {
   roundIndex: number;
   tier: string;
   confirmed?: boolean;
+}
+
+export interface SkipCategoryPayload {
+  lobbyCode: string;
+}
+
+export interface RerollAvatarPayload {
+  lobbyCode: string;
 }
 
 // ─── Tier List Shared Types ─────────────────────────────────────────────────
@@ -244,7 +254,9 @@ export type ClientMessage =
   | { type: typeof CLIENT_MSG.LEAVE_LOBBY; payload: LeaveLobbyPayload }
   | { type: typeof CLIENT_MSG.UPDATE_CONFIG; payload: UpdateConfigPayload }
   | { type: typeof CLIENT_MSG.NEXT_ROUND; payload: NextRoundPayload }
-  | { type: typeof CLIENT_MSG.SUBMIT_TIER_VOTE; payload: SubmitTierVotePayload };
+  | { type: typeof CLIENT_MSG.SUBMIT_TIER_VOTE; payload: SubmitTierVotePayload }
+  | { type: typeof CLIENT_MSG.SKIP_CATEGORY; payload: SkipCategoryPayload }
+  | { type: typeof CLIENT_MSG.REROLL_AVATAR; payload: RerollAvatarPayload };
 
 export type ServerMessage =
   | { type: typeof SERVER_MSG.LOBBY_UPDATE; payload: LobbyUpdatePayload }

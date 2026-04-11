@@ -85,12 +85,24 @@
       <ul class="player-list">
         @for (player of gameState.players(); track player.id) {
           <li class="player-list__item">
-            <app-player-avatar
-              [headSrc]="getAvatar(player.id)?.headUrl"
-              [accessorySrc]="getAvatar(player.id)?.accessoryUrl"
-              [alt]="player.username + ' avatar'"
-              [showCrown]="!!player.hasCrown"
-            />
+            @if (player.id === gameState.currentPlayerId()) {
+              <div class="player-list__avatar-reroll" (click)="rerollAvatar()" role="button" tabindex="0" (keydown.enter)="rerollAvatar()" [attr.aria-label]="'lobby.rerollAvatar' | translate" [title]="'lobby.rerollAvatar' | translate">
+                <app-player-avatar
+                  [headSrc]="getAvatar(player.id)?.headUrl"
+                  [accessorySrc]="getAvatar(player.id)?.accessoryUrl"
+                  [alt]="player.username + ' avatar'"
+                  [showCrown]="!!player.hasCrown"
+                />
+                <span class="player-list__reroll-icon">🔄</span>
+              </div>
+            } @else {
+              <app-player-avatar
+                [headSrc]="getAvatar(player.id)?.headUrl"
+                [accessorySrc]="getAvatar(player.id)?.accessoryUrl"
+                [alt]="player.username + ' avatar'"
+                [showCrown]="!!player.hasCrown"
+              />
+            }
             <span class="player-list__name">{{ player.username }}</span>
             @if (player.isHost) {
               <span class="player-list__badge player-list__badge--host">{{ 'lobby.hostBadge' | translate }}</span>

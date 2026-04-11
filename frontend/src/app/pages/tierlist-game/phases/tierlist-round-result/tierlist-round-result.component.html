@@ -102,7 +102,11 @@
   @if (gameState.isHost() && isManualAdvance()) {
     <div class="round-result__next">
       <button class="round-result__next-btn" (click)="nextRound()">
-        {{ 'tierlist.roundResult.nextRound' | translate }}
+        @if (isLastRound()) {
+          {{ 'tierlist.roundResult.seeResults' | translate }}
+        } @else {
+          {{ 'tierlist.roundResult.nextRound' | translate }}
+        }
       </button>
     </div>
   }

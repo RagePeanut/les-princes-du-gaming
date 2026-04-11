@@ -69,6 +69,30 @@
   text-align: center;
 }
 
+.gameplay__skip-btn {
+  background: transparent;
+  color: $text-muted;
+  border: 2px solid $text-muted;
+  border-radius: $radius-sm;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: $danger;
+    border-color: $danger;
+    background: rgba($danger, 0.06);
+  }
+
+  &:active {
+    filter: brightness(0.9);
+  }
+}
+
 // Source area
 .gameplay__source {
   text-align: center;

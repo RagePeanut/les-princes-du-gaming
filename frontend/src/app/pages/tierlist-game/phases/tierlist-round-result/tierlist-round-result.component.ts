@@ -75,6 +75,10 @@ export class TierlistRoundResultComponent {
     return config ? config.timeBetweenRounds === -1 : false;
   });
 
+  readonly isLastRound = computed(() => {
+    return this.gameState.currentRound() >= this.gameState.totalRounds();
+  });
+
   nextRound(): void {
     const code = this.gameState.lobbyCode();
     if (!code) return;
